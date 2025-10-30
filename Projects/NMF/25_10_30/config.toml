@@ -1,6 +1,0 @@
-[params]
-n_components = { custom = "n_components_generator" }
-X = { custom = "data_generator" }
-
-[output]
-dir = "output"
