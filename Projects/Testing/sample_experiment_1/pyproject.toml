@@ -1,0 +1,12 @@
+[project]
+name = "sample-experiment-1"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "exp-runner",
+]
+
+[tool.uv.sources]
+exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev =  "36f56d01770016662b6ab11dbc5645f621c75c6a" }
