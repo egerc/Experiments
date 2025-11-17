@@ -1,0 +1,15 @@
+[project]
+name = "25-11-17-test-experiment"
+version = "0.1.0"
+description = "Test run of the experiment runner together with NMF feature prediction"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "exp-runner",
+    "louvain>=0.8.2",
+    "spatial-transcript-inference",
+]
+
+[tool.uv.sources]
+exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev = "36f56d01770016662b6ab11dbc5645f621c75c6a" }
+spatial-transcript-inference = { git = "https://github.com/egerc/spatial_transcript_inference.git", rev = "0fc692704ced5cdf2abdbe348a167bf5ed2d4178" }
