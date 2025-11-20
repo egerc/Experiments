@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable, List
 from exp_runner import MetaData, VarProduct, runner
-from label_transfer.src.label_transfer import Dataset, method_type, method_generator, dataset_generator
+
+from label_transfer import Dataset, method_type, method_generator, dataset_generator
 
 
 
