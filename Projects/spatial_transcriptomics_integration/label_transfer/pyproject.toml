@@ -1,7 +1,6 @@
 [project]
-name = "2025-11-10"
+name = "label-transfer"
 version = "0.1.0"
-description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -12,4 +11,7 @@ dependencies = [
 
 [tool.uv.sources]
 nico-tutorial = { git = "https://github.com/gruenlab/nico_tutorial.git", rev = "10de2a5d3ba65bda894f95fbfe3d3f9a1c7527c8" }
-exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev = "4e1efa49fbb976f535f671983dca84344d6c5030" }
+exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev = "5171a4a876c322e1723b2f10b00f65f8f5125289" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

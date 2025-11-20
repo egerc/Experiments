@@ -3,23 +3,6 @@ revision = 2
 requires-python = ">=3.13"
 
 [[package]]
-name = "2025-11-10"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "exp-runner" },
-    { name = "nico-tutorial" },
-    { name = "tangram-sc" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=4e1efa49fbb976f535f671983dca84344d6c5030" },
-    { name = "nico-tutorial", git = "https://github.com/gruenlab/nico_tutorial.git?rev=10de2a5d3ba65bda894f95fbfe3d3f9a1c7527c8" },
-    { name = "tangram-sc", specifier = ">=1.0.4" },
-]
-
-[[package]]
 name = "anndata"
 version = "0.12.6"
 source = { registry = "https://pypi.org/simple" }
@@ -230,7 +213,7 @@ wheels = [
 [[package]]
 name = "exp-runner"
 version = "0.1.0"
-source = { git = "https://github.com/egerc/exp-runner.git?rev=4e1efa49fbb976f535f671983dca84344d6c5030#4e1efa49fbb976f535f671983dca84344d6c5030" }
+source = { git = "https://github.com/egerc/exp-runner.git?rev=5171a4a876c322e1723b2f10b00f65f8f5125289#5171a4a876c322e1723b2f10b00f65f8f5125289" }
 dependencies = [
     { name = "numpy" },
     { name = "polars" },
@@ -479,6 +462,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/99/dd/841e9a66c4715477ea0abc78da039832fbb09dac5c35c58dc4c41a407b8a/kiwisolver-1.4.9-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:aedff62918805fb62d43a4aa2ecd4482c380dc76cd31bd7c8878588a61bd0369", size = 2391835, upload-time = "2025-08-10T21:27:34.23Z" },
     { url = "https://files.pythonhosted.org/packages/0c/28/4b2e5c47a0da96896fdfdb006340ade064afa1e63675d01ea5ac222b6d52/kiwisolver-1.4.9-cp314-cp314t-win_amd64.whl", hash = "sha256:1fa333e8b2ce4d9660f2cda9c0e1b6bafcfb2457a9d259faa82289e73ec24891", size = 79988, upload-time = "2025-08-10T21:27:35.587Z" },
     { url = "https://files.pythonhosted.org/packages/80/be/3578e8afd18c88cdf9cb4cffde75a96d2be38c5a903f1ed0ceec061bd09e/kiwisolver-1.4.9-cp314-cp314t-win_arm64.whl", hash = "sha256:4a48a2ce79d65d363597ef7b567ce3d14d68783d2b2263d98db3d9477805ba32", size = 70260, upload-time = "2025-08-10T21:27:36.606Z" },
+]
+
+[[package]]
+name = "label-transfer"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "exp-runner" },
+    { name = "nico-tutorial" },
+    { name = "tangram-sc" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=5171a4a876c322e1723b2f10b00f65f8f5125289" },
+    { name = "nico-tutorial", git = "https://github.com/gruenlab/nico_tutorial.git?rev=10de2a5d3ba65bda894f95fbfe3d3f9a1c7527c8" },
+    { name = "tangram-sc", specifier = ">=1.0.4" },
 ]
 
 [[package]]
