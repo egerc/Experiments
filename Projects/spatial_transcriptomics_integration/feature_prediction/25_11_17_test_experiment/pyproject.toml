@@ -11,5 +11,5 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev = "36f56d01770016662b6ab11dbc5645f621c75c6a" }
+exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev = "4e1efa49fbb976f535f671983dca84344d6c5030" }
 spatial-transcript-inference = { git = "https://github.com/egerc/spatial_transcript_inference.git", rev = "0fc692704ced5cdf2abdbe348a167bf5ed2d4178" }

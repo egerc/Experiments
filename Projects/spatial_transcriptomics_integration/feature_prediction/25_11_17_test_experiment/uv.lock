@@ -18,7 +18,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=36f56d01770016662b6ab11dbc5645f621c75c6a" },
+    { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=4e1efa49fbb976f535f671983dca84344d6c5030" },
     { name = "louvain", specifier = ">=0.8.2" },
     { name = "spatial-transcript-inference", git = "https://github.com/egerc/spatial_transcript_inference.git?rev=0fc692704ced5cdf2abdbe348a167bf5ed2d4178" },
 ]
@@ -764,7 +764,7 @@ wheels = [
 [[package]]
 name = "exp-runner"
 version = "0.1.0"
-source = { git = "https://github.com/egerc/exp-runner.git?rev=36f56d01770016662b6ab11dbc5645f621c75c6a#36f56d01770016662b6ab11dbc5645f621c75c6a" }
+source = { git = "https://github.com/egerc/exp-runner.git?rev=4e1efa49fbb976f535f671983dca84344d6c5030#4e1efa49fbb976f535f671983dca84344d6c5030" }
 dependencies = [
     { name = "numpy" },
     { name = "polars" },
