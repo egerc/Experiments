@@ -6,12 +6,14 @@ requires-python = ">=3.13"
 dependencies = [
     "exp-runner",
     "nico-tutorial",
+    "nico2-lib",
     "tangram-sc>=1.0.4",
 ]
 
 [tool.uv.sources]
 nico-tutorial = { git = "https://github.com/gruenlab/nico_tutorial.git", rev = "10de2a5d3ba65bda894f95fbfe3d3f9a1c7527c8" }
 exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev = "5171a4a876c322e1723b2f10b00f65f8f5125289" }
+nico2-lib = { git = "https://github.com/gruenlab/bioinfo-tools.git", subdirectory = "applications/nico2_lib", rev = "main" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
