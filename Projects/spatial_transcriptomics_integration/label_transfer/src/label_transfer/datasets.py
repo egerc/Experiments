@@ -54,7 +54,7 @@ class Dataset:
         if self.query_ct_key:
             return get_labels(self.query, self.query_ct_key)
         else:
-            labels = [None for cell in self.query.obs_names]
+            labels = [None for _ in self.query.obs_names]
             return labels
 
 
@@ -67,10 +67,13 @@ def dataset_generator(
         reference_ct_key: str = "annot"
         return Dataset(reference, reference_ct_key, query)
 
-    variables = [
+    variables: List[Variable[Callable[[], Dataset]]] = [
         Variable(
             human_liver_10x,
             {
+                "datasets_name": human_liver_10x.__name__,
+                "tissue": "lung",
+                "organism": "human",
                 "query_repository": "10x",
                 "query_id": "Xenium_V1_hLiver_nondiseased_section_FFPE",
                 "reference_repository": "livercellatlas",

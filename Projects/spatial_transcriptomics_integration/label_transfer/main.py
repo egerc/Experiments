@@ -1,9 +1,14 @@
 from dataclasses import dataclass
+from functools import partial
 from typing import Callable, List
+from joblib import Memory
 from exp_runner import MetaData, VarProduct, runner
+
+import scanpy as sc
 
 from label_transfer import Dataset, method_type, method_generator, dataset_generator
 
+memory = Memory("./cache", verbose=0)
 
 
 @dataclass
@@ -12,9 +17,12 @@ class Input(VarProduct):
     dataset: Callable[[], Dataset]
 
 
-@runner(head=5)
+@runner(format="parquet")
 def experiment(input: Input) -> List[MetaData]:
     dataset = input.dataset()
+    subsample = partial(sc.pp.subsample, n_obs=500)
+    subsample(dataset.query)
+    subsample(dataset.reference)
     labels = input.method(dataset.query, dataset.reference, dataset.reference_ct_key)
     return [
         {
