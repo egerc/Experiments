@@ -5,6 +5,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "exp-runner",
+    "ipython>=9.7.0",
     "nico-tutorial",
     "nico2-lib",
     "tangram-sc>=1.0.4",
