@@ -34,7 +34,7 @@ def experiment(input: Input) -> List[MetaData]:
 
 
 def main():
-    variables = (method_generator(), dataset_generator())
+    variables = (method_generator(), dataset_generator("./data"))
     inputs = Input.generate_from(variables)
     experiment(inputs)
 
