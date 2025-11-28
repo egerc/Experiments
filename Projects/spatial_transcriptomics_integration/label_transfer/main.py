@@ -19,10 +19,12 @@ class Input(VarProduct):
 
 @runner(format="parquet")
 def experiment(input: Input) -> List[MetaData]:
+    print("test")
     dataset = input.dataset()
     subsample = partial(sc.pp.subsample, n_obs=500)
-    subsample(dataset.query)
-    subsample(dataset.reference)
+    #subsample(dataset.query)
+    #subsample(dataset.reference)
+    print(input.method.__name__)
     labels = input.method(dataset.query, dataset.reference, dataset.reference_ct_key)
     return [
         {

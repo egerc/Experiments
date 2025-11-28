@@ -1,7 +1,7 @@
 # Benchmarking label transfer
 
 ## Methods
-- NMF based - todo
+- NMF based
 - NiCo - todo
-- scvi - todo
+- scvi
 - Tangram - todo
