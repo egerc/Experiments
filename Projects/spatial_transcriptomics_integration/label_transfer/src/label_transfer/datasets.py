@@ -3,7 +3,12 @@ from typing import Any, Callable, Generator, List, Optional, Tuple, Union
 
 from anndata import AnnData
 from exp_runner import Variable
-from nico2_lib.datasets import xenium_10x_loader, human_liver_cell_atlas
+from nico2_lib.datasets import (
+    xenium_10x_loader,
+    human_liver_cell_atlas,
+    small_mouse_intestine_sc,
+    small_mouse_intestine_merfish,
+)
 
 
 def get_coordinates(adata: AnnData) -> List[Tuple[float, float]]:
@@ -67,17 +72,35 @@ def dataset_generator(
         reference_ct_key: str = "annot"
         return Dataset(reference, reference_ct_key, query)
 
+    def mouse_small_intestine() -> Dataset:
+        query = small_mouse_intestine_merfish(dir=dir)
+        reference = small_mouse_intestine_sc(dir=dir)
+        reference_ct_key = "cluster"
+        return Dataset(reference, reference_ct_key, query)
+
     variables: List[Variable[Callable[[], Dataset]]] = [
         Variable(
             human_liver_10x,
             {
-                "datasets_name": human_liver_10x.__name__,
+                "dataset_name": human_liver_10x.__name__,
                 "tissue": "lung",
                 "organism": "human",
                 "query_repository": "10x",
                 "query_id": "Xenium_V1_hLiver_nondiseased_section_FFPE",
                 "reference_repository": "livercellatlas",
                 "reference_id": "Liver Cell Atlas: Human, All Liver Cells",
+            },
+        ),
+        Variable(
+            mouse_small_intestine,
+            {
+                "dataset_name": mouse_small_intestine.__name__,
+                "tissue": "small_intestine",
+                "organism": "mouse",
+                "query_repository": "https://github.com/ankitbioinfo/nico_tutorial.git",
+                "query_id": "inputQuery.zip", 
+                "reference_repository": "https://github.com/ankitbioinfo/nico_tutorial.git",
+                "reference_id": "inputRef.zip", 
             },
         )
     ]
