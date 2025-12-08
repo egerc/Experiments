@@ -1,3 +1,5 @@
+from pathlib import Path
+import shutil
 from typing import Any, Callable, Generator, List
 
 from exp_runner import Variable
@@ -11,6 +13,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics.pairwise import cosine_similarity
 import scanpy as sc
 import tangram as tg
+from NiCo import Annotations as ann
 
 from label_transfer.typing import dataset_labels, method_type
 from label_transfer.datasets import get_labels
@@ -77,6 +80,7 @@ def nmf_transfer_old(
     best_label_idx = np.argmin(mse_matrix, axis=1)
     predicted_labels = [unique_labels[k] for k in best_label_idx]
     return predicted_labels
+
 
 def cosine_similarity_row(A: NDArray[number], B: NDArray[number]) -> NDArray[number]:
     """Compute cosine similarity between rows of A and corresponding rows of B."""
@@ -189,9 +193,65 @@ def nmf_transfer(
 
     return query_labels
 
+
 def nico_transfer(
     query: AnnData, reference: AnnData, reference_ct_key: str
-) -> dataset_labels: ...
+) -> dataset_labels:
+    nico_containment_path = Path("./data/nico_artifacts")
+    nico_containment_path.mkdir(exist_ok=True)
+    Original_counts = reference.copy()
+    Original_counts.raw = Original_counts.copy()
+    sc.pp.normalize_total(Original_counts)
+    sc.pp.log1p(Original_counts)
+    sc.tl.pca(Original_counts)
+    sc.pp.neighbors(Original_counts)
+    index_sp, index_sc = ann.find_index(
+        query.var_names.to_numpy(), reference.var_names.to_numpy()
+    )
+
+    ad_seq_common = reference[:, index_sc].copy()
+    # ad_seq_common = reference.copy()
+    ad_spatial_common = query[:, index_sp].copy()
+    ad_seq_common.raw = ad_seq_common.copy()
+    ad_spatial_common.raw = ad_spatial_common.copy()
+    sc.experimental.pp.normalize_pearson_residuals(ad_seq_common, inplace=True)
+    ad_seq_common.X[ad_seq_common.X < 0] = 0
+    ad_seq_common.X = np.nan_to_num(ad_seq_common.X)
+    sc.experimental.pp.normalize_pearson_residuals(ad_spatial_common, inplace=True)
+    ad_spatial_common.X[ad_spatial_common.X < 0] = 0
+    ad_spatial_common.X = np.nan_to_num(ad_spatial_common.X)
+
+    ref_path = nico_containment_path / "inputRef"
+    query_path = nico_containment_path / "inputQuery"
+    ref_path.mkdir(exist_ok=True)
+    query_path.mkdir(exist_ok=True)
+    sc_sct_anndata_filename = ref_path / "sct_singleCell.h5ad"
+    spatial_sct_anndata_filename = query_path / "sct_spatial.h5ad"
+    sct_full_anndata_filename = ref_path / "Original_counts.h5ad"
+    output_nico_dir = nico_containment_path / "nico_out"
+    output_nico_dir.mkdir(exist_ok=True)
+    ad_seq_common.write_h5ad(sc_sct_anndata_filename)
+    Original_counts.write_h5ad(sct_full_anndata_filename)
+    sc.pp.pca(ad_spatial_common)
+    sc.pp.neighbors(ad_spatial_common, n_pcs=30)
+    sc.tl.leiden(ad_spatial_common)
+    ad_spatial_common.write_h5ad(spatial_sct_anndata_filename)
+    anchors_and_neighbors_info = ann.find_anchor_cells_between_ref_and_query(
+        refpath=f"{str(ref_path)}/",
+        quepath=f"{str(query_path)}/",
+        output_nico_dir=f"{str(output_nico_dir)}/",
+    )
+
+    output_info = ann.nico_based_annotation(
+        anchors_and_neighbors_info,
+        guiding_spatial_cluster_resolution_tag="leiden",
+        ref_cluster_tag=reference_ct_key,
+    )
+    shutil.rmtree(nico_containment_path)
+    annotation = output_info.nico_cluster
+    return annotation
+
+
 def tangram_transfer(
     query: AnnData, reference: AnnData, reference_ct_key: str
 ) -> dataset_labels:
@@ -226,14 +286,13 @@ def tangram_transfer(
     )
 
     tg.project_cell_annotations(
-        adata_map=adata_map,
-        adata_sp=query,
-        annotation=reference_ct_key
+        adata_map=adata_map, adata_sp=query, annotation=reference_ct_key
     )
 
     predicted_labels = query.obsm["tangram_ct_pred"].idxmax(axis=1).values.tolist()
 
     return predicted_labels
+
 
 def scvi_transfer(
     query: AnnData, reference: AnnData, reference_ct_key: str
@@ -257,25 +316,32 @@ def scvi_transfer(
     """
 
     max_epochs = 200
-    scvi.model.SCVI.setup_anndata(reference, labels_key=reference_ct_key)
-    vae = scvi.model.SCVI(reference)
+    unlabeled_category = "Unknown"
+    batch_label = "batch"
+    query.obs["celltype"] = unlabeled_category
+    reference.obs["celltype"] = reference.obs[reference_ct_key]
+    adata = sc.concat([query, reference], label=batch_label)
+    scvi.model.SCVI.setup_anndata(adata, batch_key=batch_label)
+    vae = scvi.model.SCVI(adata)
     vae.train(max_epochs=max_epochs)
+    scanvi_prediction_key = "C_scanvi"
     scanvi = scvi.model.SCANVI.from_scvi_model(
-        vae, labels_key=reference_ct_key, unlabeled_category="Unknown"
+        vae, adata=adata, labels_key="celltype", unlabeled_category=unlabeled_category
     )
     scanvi.train()
-    scvi.model.SCANVI.prepare_query_anndata(query, scanvi)
-    query_model = scvi.model.SCANVI.load_query_data(query, scanvi)
-    predicted_labels = query_model.predict(query)
-    return predicted_labels.tolist()
+    adata.obs[scanvi_prediction_key] = scanvi.predict(adata)
+    query.obs = query.obs.join(adata.obs[scanvi_prediction_key], how="left")
+    predicted_labels = list(query.obs[scanvi_prediction_key])
+    return predicted_labels
 
 
 def method_generator() -> Generator[Variable[method_type], Any, None]:
     methods = [
         Variable(nmf_transfer, {"method_name": "nmf"}),
-        #Variable(nmf_transfer_old, {"method_name": "nmf_old"}),
-        #Variable(scvi_transfer, {"method_name": "scvi"}),
-        #Variable(tangram_transfer, {"method_name": "tangram"}),
+        # Variable(nmf_transfer_old, {"method_name": "nmf_old"}),
+        Variable(scvi_transfer, {"method_name": "scvi"}),
+        Variable(nico_transfer, {"method_name": "nico_old"}),
+        # Variable(tangram_transfer, {"method_name": "tangram"}),
     ]
     for method in methods:
         yield method
