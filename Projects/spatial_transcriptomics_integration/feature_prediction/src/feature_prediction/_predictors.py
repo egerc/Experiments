@@ -6,6 +6,7 @@ from anndata.typing import AnnData
 from exp_runner import Variable
 from nico2_lib import predictors
 import scanpy as sc
+from scipy import sparse
 
 from feature_prediction import typing
 from sklearn.model_selection import KFold
@@ -33,6 +34,11 @@ def genewise_cv_predictor(
     """
 
     def predictor(query: AnnData, reference: AnnData) -> AnnData:
+        if not isinstance(query.X, np.ndarray):
+            query.X = query.X.toarray()
+        if not isinstance(reference.X, np.ndarray):
+            reference.X = reference.X.toarray()
+
         shared_genes = np.intersect1d(query.var_names, reference.var_names)
         cv = KFold(n_splits=n_splits)
 
