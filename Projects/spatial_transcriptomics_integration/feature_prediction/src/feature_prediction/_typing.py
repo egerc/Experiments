@@ -1,5 +1,5 @@
 from typing import Callable, Tuple
-from anndata.typing import AnnData
+from anndata.typing import AnnData  # type: ignore
 
 type Dataset = Callable[[], Tuple[AnnData, AnnData, str, str]]
 type Predictor = Callable[[AnnData, AnnData], AnnData]

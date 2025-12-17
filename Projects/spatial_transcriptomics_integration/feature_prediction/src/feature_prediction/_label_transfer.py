@@ -1,5 +1,5 @@
 from typing import Callable, List
-from anndata.typing import AnnData
+from anndata.typing import AnnData # type: ignore
 
 import numpy as np
 from numpy import number
@@ -72,7 +72,7 @@ def _nmf_label_transfer(
         )
         similarities.append(scores)
 
-    similarities = np.vstack(similarities)
+    similarities = np.vstack(similarities) # type: ignore
     return celltypes[np.argmax(similarities, axis=0)]
 
 
