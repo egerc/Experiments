@@ -8,7 +8,7 @@ and a generator to iterate over available predictors.
 """
 
 from functools import wraps
-from typing import Any, Callable, Generator
+from typing import Any, Callable, Dict, Generator, Type, Union
 
 import numpy as np
 import anndata as ad  # type: ignore
@@ -20,6 +20,42 @@ import scanpy as sc  # type: ignore
 from feature_prediction import typing
 from feature_prediction.utils import adata_dense_mut
 from sklearn.model_selection import KFold
+
+
+def make_shared_gene_predictor(
+    PredictorCls: Type[Union[predictors.NmfPredictor, predictors.TangramPredictor]],
+    predictor_kwargs: Dict[str, Any] | None = None,
+) -> Callable[[AnnData, AnnData], AnnData]:
+    """
+    Factory for predictors that:
+      - train on reference shared genes
+      - predict reference-only genes in query
+
+    Assumes PredictorCls has:
+        .fit(X_shared_ref, X_ref_only)
+        .predict(X_shared_query)
+    """
+    predictor_kwargs = predictor_kwargs or {}
+
+    def predictor(query: AnnData, reference: AnnData) -> AnnData:
+        shared_genes = np.intersect1d(query.var_names, reference.var_names)
+        ref_only_genes = np.setdiff1d(reference.var_names, shared_genes)
+
+        model = PredictorCls(**predictor_kwargs)
+
+        X_ref_shared = reference[:, shared_genes].X
+        X_ref_only = reference[:, ref_only_genes].X
+        X_query_shared = query[:, shared_genes].X
+
+        X_recon = model.fit(X_ref_shared, X_ref_only).predict(X_query_shared)
+
+        return ad.AnnData(
+            X=X_recon,
+            obs=query.obs.copy(),
+            var=reference[:, ref_only_genes].var.copy(),
+        )
+
+    return predictor
 
 
 def _nmf_predictor(query: AnnData, reference: AnnData) -> AnnData:
@@ -94,7 +130,9 @@ def genewise_cv_predictor(
 
     return predictor
 
-
+tangram_predictor = genewise_cv_predictor(
+    make_shared_gene_predictor(predictors.TangramPredictor)
+)
 def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
     """
     Generate available predictors wrapped in Variable objects for experiments.
@@ -104,12 +142,21 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
     Variable[typing.Predictor]
         Predictor functions with metadata.
     """
-    nmf_predictor = genewise_cv_predictor(_nmf_predictor)
-    predictors = [
+    nmf_predictor = genewise_cv_predictor(
+        make_shared_gene_predictor(predictors.NmfPredictor, {"n_components": 3})
+    )
+    tangram_predictor = genewise_cv_predictor(
+        make_shared_gene_predictor(predictors.TangramPredictor)
+    )
+    predictors_list = [
         Variable(
             nmf_predictor,
             {"name": "nmf_predictor", "n_components": 3},
+        ),
+        Variable(
+            tangram_predictor,
+            {"name": "tangram_predictor"},
         )
     ]
-    for predictor in predictors:
+    for predictor in predictors_list:
         yield predictor

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Tuple
-import itertools
-from numpy.typing import NDArray
+
+from feature_prediction.utils import adata_dense_mut
+import scanpy as sc
 from numpy import number
 from anndata.typing import AnnData
 from exp_runner import VarProduct, runner_pickled
@@ -35,12 +35,18 @@ def h5ad_saver(adata: AnnData, directory: Path) -> str:
     adata.write_h5ad(path)
     return str(path)
 
-@runner_pickled(output_dir="./output", saver=h5ad_saver)
+@runner_pickled(output_dir="./output", saver=h5ad_saver, format="csv")
 def experiment(input: Input) -> AnnData:
     print(input.dataset, input.predictor, input.strategy)
     query, reference, query_ct_key, reference_ct_key = input.dataset()
+    n_obs = 50
+    #sc.pp.subsample(query, n_obs=n_obs)
+    #sc.pp.subsample(reference, n_obs=n_obs)
+    adata_dense_mut(query)
+    adata_dense_mut(reference)
     query_recon = input.strategy(query, reference, input.predictor, query_ct_key, reference_ct_key)
-    query_recon.obs = query.obs
+    query_recon.obs = query_recon.obs.join(query.obs)
+    print(query_recon)
     return query_recon
 
 

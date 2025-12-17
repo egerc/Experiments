@@ -14,6 +14,7 @@ from typing import Any, Callable, Generator, List, Tuple
 
 import numpy as np
 from anndata.typing import AnnData
+import scanpy as sc
 from exp_runner import Variable
 from nico2_lib import datasets
 
@@ -47,11 +48,43 @@ def _mouse_small_intestine(dir: str) -> tuple[AnnData, AnnData, str, str]:
     return query, reference, query_ct_key, reference_ct_key
 
 
+def _liver_cell_atlas(dir: str) -> Tuple[AnnData, AnnData, str, str]:
+    """
+    Load Xenium liver section as the query and human liver cell atlas as the reference.
+
+    The query cell types are annotated via NMF label transfer from the reference dataset.
+
+    Parameters
+    ----------
+    dir : str
+        Path to the directory containing the dataset files.
+
+    Returns
+    -------
+    Tuple[AnnData, AnnData, str, str]
+        A tuple containing:
+        - query AnnData (Xenium section) with cells to reconstruct
+        - reference AnnData (human liver cell atlas) used for prediction
+        - query cell type key
+        - reference cell type key
+    """
+    query = datasets.xenium_10x_loader(
+        "Xenium_V1_hLiver_nondiseased_section_FFPE", dir=dir
+    )
+    reference = datasets.human_liver_cell_atlas(dir)
+    adata_dense_mut(query)
+    adata_dense_mut(reference)
+    reference_ct_key = "annot"
+    query.obs[reference_ct_key] = nmf_transfer(query, reference, reference_ct_key)
+    return query, reference, reference_ct_key, reference_ct_key
+
+
 def _split_loader_adata(
     loader_func: Callable[[], AnnData], ct_key: str
 ) -> typing.Dataset:
     """
     Higher-order function that wraps a loader function to randomly split the AnnData.
+    The query subset is filtered to the top 500 highly variable genes.
 
     Parameters
     ----------
@@ -64,22 +97,24 @@ def _split_loader_adata(
     -------
     Callable[[], Tuple[AnnData, AnnData, str, str]]
         Loader function that returns a tuple of (query, reference, query_ct_key, reference_ct_key)
-        with the dataset randomly split in half.
+        with the dataset randomly split in half and the query filtered to the top 500 HVGs.
     """
 
     @wraps(loader_func)
     def split_loader() -> Tuple[AnnData, AnnData, str, str]:
         adata = loader_func()
-
-        adata_dense_mut(adata)
         n_cells = adata.n_obs
         shuffled_idx = np.random.permutation(n_cells)
         split_idx = n_cells // 2
 
         idx1, idx2 = shuffled_idx[:split_idx], shuffled_idx[split_idx:]
-
         query = adata[idx1].copy()
         reference = adata[idx2].copy()
+
+        sc.pp.highly_variable_genes(
+            query, n_top_genes=500, flavor="seurat_v3", inplace=True
+        )
+        query = query[:, query.var["highly_variable"]].copy()
 
         return query, reference, ct_key, ct_key
 
@@ -106,19 +141,44 @@ def dataset_generator(
     mouse_small_intestine_sc = _split_loader_adata(
         partial(datasets.small_mouse_intestine_sc, dir=dir), "cluster"
     )
+    liver_cell_atlas = partial(_liver_cell_atlas, dir=dir)
+    liver_cell_atlas_sc = _split_loader_adata(
+        partial(datasets.human_liver_cell_atlas, dir=dir), "annot"
+    )
 
     my_datasets: List[Variable[typing.Dataset]] = [
         Variable(
             mouse_small_intestine,
             {
-                "spatial_data_path": "mouse_small_intestine_merfish.h5ad",
+                "spatial_data_path": "mouse_small_intestine_merfish",
                 "sc_data_path": "mouse_small_intestine_sc",
+                "organism": "mouse",
+                "tissue": "small_intestine",
             },
         ),
         Variable(
             mouse_small_intestine_sc,
             {
                 "sc_data_path": "mouse_small_intestine_sc",
+                "organism": "mouse",
+                "tissue": "small_intestine",
+            },
+        ),
+        Variable(
+            liver_cell_atlas,
+            {
+                "sc_data_path": "human_liver_cell_atlas",
+                "spatial_data_path": "Xenium_V1_hLiver_nondiseased_section_FFPE",
+                "organism": "human",
+                "tissue": "liver",
+            },
+        ),
+        Variable(
+            liver_cell_atlas_sc,
+            {
+                "sc_data_path": "human_liver_cell_atlas",
+                "organism": "human",
+                "tissue": "liver",
             },
         ),
     ]
