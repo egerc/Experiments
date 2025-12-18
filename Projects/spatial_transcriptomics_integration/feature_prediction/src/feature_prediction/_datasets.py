@@ -121,6 +121,13 @@ def _split_loader_adata(
     return split_loader
 
 
+def _pbmc3k_processed() -> AnnData:
+    adata = sc.read_h5ad(
+        "/home/gruengroup/christian/Projects/Experiments/Projects/spatial_transcriptomics_integration/data/pbmc3k_processed/pbmc3k_processed.h5ad"
+    )
+    return adata
+
+
 def dataset_generator(
     dir: str,
 ) -> Generator[Variable[typing.Dataset], Any, None]:
@@ -145,40 +152,66 @@ def dataset_generator(
     liver_cell_atlas_sc = _split_loader_adata(
         partial(datasets.human_liver_cell_atlas, dir=dir), "annot"
     )
+    pbmc3k_sc = _split_loader_adata(_pbmc3k_processed, "louvain")
 
     my_datasets: List[Variable[typing.Dataset]] = [
         Variable(
             mouse_small_intestine,
             {
+                "dataset_name": "mouse_small_intestine_spatial",
                 "spatial_data_path": "mouse_small_intestine_merfish",
+                "spatial_data": "real",
                 "sc_data_path": "mouse_small_intestine_sc",
+                "spatial_annot_col": "annotation",
+                "sc_annot_col": "cluster",
                 "organism": "mouse",
                 "tissue": "small_intestine",
             },
         ),
-        Variable(
+         Variable(
             mouse_small_intestine_sc,
             {
+                "dataset_name": "mouse_small_intestine_pseudospatial",
                 "sc_data_path": "mouse_small_intestine_sc",
+                "spatial_data": "pseudo",
+                "sc_annot_col": "cluster",
                 "organism": "mouse",
                 "tissue": "small_intestine",
             },
-        ),
-        Variable(
+         ),
+         Variable(
             liver_cell_atlas,
             {
+                "dataset_name": "liver_cell_atlas_spatial",
                 "sc_data_path": "human_liver_cell_atlas",
+                "spatial_data": "real",
                 "spatial_data_path": "Xenium_V1_hLiver_nondiseased_section_FFPE",
+                "spatial_annot_col": "annot",
+                "sc_annot_col": "annot",
                 "organism": "human",
                 "tissue": "liver",
             },
-        ),
-        Variable(
+         ),
+         Variable(
             liver_cell_atlas_sc,
             {
+                "dataset_name": "liver_cell_atlas_pseudospatial",
                 "sc_data_path": "human_liver_cell_atlas",
+                "spatial_data": "pseudo",
+                "sc_annot_col": "annot",
                 "organism": "human",
                 "tissue": "liver",
+            },
+         ),
+        Variable(
+            pbmc3k_sc,
+            {
+                "dataset_name": "pbmc3k_processed_pseudospatial",
+                "spatial_data": "pseudo",
+                "sc_data_path": "pbmc3k_processed",
+                "sc_annot_col": "louvain",
+                "organism": "human",
+                "tissue": "pbmcs",
             },
         ),
     ]

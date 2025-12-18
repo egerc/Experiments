@@ -39,9 +39,11 @@ def h5ad_saver(adata: AnnData, directory: Path) -> str:
 def experiment(input: Input) -> AnnData:
     print(input.dataset, input.predictor, input.strategy)
     query, reference, query_ct_key, reference_ct_key = input.dataset()
-    n_obs = 50
-    #sc.pp.subsample(query, n_obs=n_obs)
-    #sc.pp.subsample(reference, n_obs=n_obs)
+    n_obs_ceiling = 1000
+    n_obs_query = min(query.n_obs, n_obs_ceiling)
+    n_obs_ref = min(reference.n_obs, n_obs_ceiling)
+    sc.pp.subsample(query, n_obs=n_obs_query)
+    sc.pp.subsample(reference, n_obs=n_obs_ref)
     adata_dense_mut(query)
     adata_dense_mut(reference)
     query_recon = input.strategy(query, reference, input.predictor, query_ct_key, reference_ct_key)

@@ -7,7 +7,7 @@ Includes implementations of predictors, wrappers for cross-validation,
 and a generator to iterate over available predictors.
 """
 
-from functools import wraps
+from functools import partial, wraps
 from typing import Any, Callable, Dict, Generator, Type, Union
 
 import numpy as np
@@ -23,7 +23,7 @@ from sklearn.model_selection import KFold
 
 
 def make_shared_gene_predictor(
-    PredictorCls: Type[Union[predictors.NmfPredictor, predictors.TangramPredictor]],
+    PredictorCls: Type[predictors.PredictorProtocol],
     predictor_kwargs: Dict[str, Any] | None = None,
 ) -> Callable[[AnnData, AnnData], AnnData]:
     """
@@ -130,9 +130,12 @@ def genewise_cv_predictor(
 
     return predictor
 
+
 tangram_predictor = genewise_cv_predictor(
     make_shared_gene_predictor(predictors.TangramPredictor)
 )
+
+
 def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
     """
     Generate available predictors wrapped in Variable objects for experiments.
@@ -148,15 +151,72 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
     tangram_predictor = genewise_cv_predictor(
         make_shared_gene_predictor(predictors.TangramPredictor)
     )
+    lvae_predictor = genewise_cv_predictor(
+        make_shared_gene_predictor(
+            partial(
+                predictors.VaePredictor,
+                vae_cls=predictors.models.LVAE,
+                vae_kwargs={"latent_features": 64, "lr": 1e-3},
+                devices=1,
+            )
+        )
+    )
+    ldvae_predictor = genewise_cv_predictor(
+        make_shared_gene_predictor(
+            partial(
+                predictors.VaePredictor,
+                vae_cls=predictors.models.LDVAE,
+                vae_kwargs={
+                    "hidden_features_in": 1024,
+                    "latent_features": 64,
+                    "lr": 1e-3,
+                },
+                devices=1,
+            )
+        )
+    )
+    levae_predictor = genewise_cv_predictor(
+        make_shared_gene_predictor(
+            partial(
+                predictors.VaePredictor,
+                vae_cls=predictors.models.LEVAE,
+                vae_kwargs={
+                    "hidden_features_out": 1024,
+                    "latent_features": 64,
+                    "lr": 1e-3,
+                },
+                devices=1,
+            )
+        )
+    )
+    vae_predictor = genewise_cv_predictor(
+        make_shared_gene_predictor(
+            partial(
+                predictors.VaePredictor,
+                vae_cls=predictors.models.VAE,
+                vae_kwargs={
+                    "hidden_features_in": 1024,
+                    "hidden_features_out": 1024,
+                    "latent_features": 64,
+                    "lr": 1e-3,
+                },
+                devices=1,
+            )
+        )
+    )
     predictors_list = [
         Variable(
             nmf_predictor,
-            {"name": "nmf_predictor", "n_components": 3},
+            {"predictor_name": "nmf_predictor", "n_components": 3},
         ),
         Variable(
             tangram_predictor,
-            {"name": "tangram_predictor"},
-        )
+            {"predictor_name": "tangram_predictor"},
+        ),
+        Variable(lvae_predictor, {"predictor_name": "LVAE"}),
+        Variable(ldvae_predictor, {"predictor_name": "LDVAE"}),
+        Variable(levae_predictor, {"predictor_name": "LEVAE"}),
+        Variable(vae_predictor, {"predictor_name": "VAE"}),
     ]
     for predictor in predictors_list:
         yield predictor
