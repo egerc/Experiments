@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "exp-runner",
+    "ipykernel>=7.1.0",
     "ipython>=9.8.0",
     "nico2-lib",
     "scikit-misc>=0.5.2",
@@ -16,7 +17,7 @@ dependencies = [
 
 [tool.uv.sources]
 exp-runner = { git = "https://github.com/egerc/exp-runner.git", rev = "d373db50d3f605908a27562dd9e094085205fd38" }
-nico2-lib = { git = "https://github.com/gruenlab/bioinfo-tools.git", subdirectory = "applications/nico2_lib", rev = "0411dab100f259fc628d333f886ce6e0fbd78bb1" }
+nico2-lib = { git = "https://github.com/gruenlab/bioinfo-tools.git", subdirectory = "applications/nico2_lib", rev = "bafc5329bdb5116df421a081ff434ad0b939dc17" }
 
 [build-system]
 requires = ["uv_build>=0.8.13,<0.9.0"]
