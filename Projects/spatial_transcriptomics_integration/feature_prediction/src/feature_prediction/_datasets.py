@@ -17,6 +17,7 @@ from anndata.typing import AnnData
 import scanpy as sc
 from exp_runner import Variable
 from nico2_lib import datasets
+from nico2_lib.label_transfer import label_transfer_tacco
 
 from feature_prediction import typing
 from feature_prediction._label_transfer import nmf_transfer
@@ -44,7 +45,7 @@ def _mouse_small_intestine(dir: str) -> tuple[AnnData, AnnData, str, str]:
     adata_dense_mut(reference)
     query_ct_key = "annotation"
     reference_ct_key = "cluster"
-    query.obs[query_ct_key] = nmf_transfer(query, reference, reference_ct_key)
+    query.obs[query_ct_key] = label_transfer_tacco(query, reference, reference_ct_key)
     return query, reference, query_ct_key, reference_ct_key
 
 

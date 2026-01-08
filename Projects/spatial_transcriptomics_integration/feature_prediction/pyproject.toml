@@ -9,11 +9,12 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "exp-runner @ git+https://github.com/egerc/exp-runner.git@d373db50d3f605908a27562dd9e094085205fd38",
-    "nico2-lib @ git+https://github.com/gruenlab/bioinfo-tools.git@bafc5329bdb5116df421a081ff434ad0b939dc17#subdirectory=applications/nico2_lib",
+    "nico2-lib @ git+https://github.com/gruenlab/bioinfo-tools.git@e91ce0ef51ff8cff1e32466f8d8eacf618c57979#subdirectory=applications/nico2_lib",
     "ipykernel>=7.1.0",
     "ipykernel>=7.1.0",
     "ipython>=9.8.0",
     "scikit-misc>=0.5.2",
+    "tacco>=0.4.0.post1",
 ]
 
 
