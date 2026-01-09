@@ -8,12 +8,30 @@ AnnData objects, and a generator to iterate over available strategies.
 
 from functools import wraps
 from typing import Callable, Generator, List, Tuple
+
+import numpy as np
 import scanpy as sc  # type: ignore
 from anndata import AnnData  # type: ignore
-import numpy as np
-
 from exp_runner import Variable  # type: ignore
+
 from feature_prediction import typing
+
+
+def stratified_predictor_factory(
+    base_predictor: Callable[[AnnData, AnnData], AnnData],
+    strategy: Callable[[AnnData, AnnData, str, str], List[Tuple[AnnData, AnnData]]],
+) -> Callable[[AnnData, AnnData, str, str], AnnData]:
+    def stratified_predictor(
+        query: AnnData, reference: AnnData, query_ct_key: str, ref_ct_key: str
+    ) -> AnnData:
+        og_adatas = strategy(query, reference, query_ct_key, ref_ct_key)
+        reconstructed_adatas = [
+            base_predictor(query_subset, ref_subset)
+            for query_subset, ref_subset in og_adatas
+        ]
+        return sc.concat(reconstructed_adatas)
+
+    return stratified_predictor
 
 
 def all_at_once(

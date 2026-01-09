@@ -8,18 +8,20 @@ and a generator to iterate over available predictors.
 """
 
 from functools import partial, wraps
-from typing import Any, Callable, Dict, Generator, Type, Union
+from typing import Any, Callable, Dict, Generator, List, Tuple, Type
 
-import numpy as np
 import anndata as ad  # type: ignore
+import numpy as np
+import scanpy as sc  # type: ignore
 from anndata.typing import AnnData  # type: ignore
 from exp_runner import Variable  # type: ignore
 from nico2_lib import predictors  # type: ignore
-import scanpy as sc  # type: ignore
+from sklearn.model_selection import KFold
 
 from feature_prediction import typing
 from feature_prediction.utils import adata_dense_mut
-from sklearn.model_selection import KFold
+
+from ._strategies import all_at_once, per_celltype, stratified_predictor_factory
 
 
 def make_shared_gene_predictor(
@@ -56,34 +58,6 @@ def make_shared_gene_predictor(
         )
 
     return predictor
-
-
-def _nmf_predictor(query: AnnData, reference: AnnData) -> AnnData:
-    """
-    Basic NMF-based predictor for reconstructing query cells from reference data.
-
-    Parameters
-    ----------
-    query : AnnData
-        Query AnnData with cells to reconstruct.
-    reference : AnnData
-        Reference AnnData used to predict missing genes.
-
-    Returns
-    -------
-    AnnData
-        Reconstructed query AnnData with predicted gene expression.
-    """
-    shared_genes = np.intersect1d(query.var_names, reference.var_names)
-    sc_only_genes = np.setdiff1d(reference.var_names, shared_genes)
-    recon_counts = (
-        predictors.NmfPredictor(n_components=3)
-        .fit(reference[:, shared_genes].X, reference[:, sc_only_genes].X)
-        .predict(query[:, shared_genes].X)
-    )
-    return ad.AnnData(
-        X=recon_counts, obs=query.obs, var=reference[:, sc_only_genes].var
-    )
 
 
 def genewise_cv_predictor(
@@ -136,7 +110,103 @@ tangram_predictor = genewise_cv_predictor(
 )
 
 
+def make_stratified_cv_predictor(
+    PredictorCls: Type[predictors.PredictorProtocol],
+    strategy: Callable[[AnnData, AnnData, str, str], List[Tuple[AnnData, AnnData]]],
+    predictor_kwargs: Dict[str, Any] | None = None,
+    n_genewise_splits: int = 5,
+) -> Callable[[AnnData, AnnData, str, str], AnnData]:
+    final_pred = make_shared_gene_predictor(PredictorCls, predictor_kwargs)
+    final_pred = genewise_cv_predictor(final_pred, n_genewise_splits)
+    final_pred = stratified_predictor_factory(final_pred, strategy)
+    return final_pred
+
+
 def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
+    predictor_list = [
+        Variable(
+            make_stratified_cv_predictor(
+                predictors.NmfPredictor, all_at_once, {"n_components": 3}
+            ),
+            {
+                "predictor_name": "nmf",
+                "reconstruction_strategy": "all_at_once",
+                "n_components": 3,
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                predictors.NmfPredictor, per_celltype, {"n_components": 3}
+            ),
+            {
+                "predictor_name": "nmf",
+                "reconstruction_strategy": "per_celltype",
+                "n_components": 3,
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                predictors.NmfPredictor, all_at_once, {"n_components": "auto"}
+            ),
+            {
+                "predictor_name": "nmf",
+                "reconstruction_strategy": "all_at_once",
+                "n_components": "auto",
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                predictors.NmfPredictor, per_celltype, {"n_components": "auto"}
+            ),
+            {
+                "predictor_name": "nmf",
+                "reconstruction_strategy": "per_celltype",
+                "n_components": "auto",
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(predictors.TangramPredictor, all_at_once),
+            {
+                "predictor_name": "tangram",
+                "reconstruction_strategy": "all_at_once",
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(predictors.TangramPredictor, per_celltype),
+            {
+                "predictor_name": "Tangram",
+                "reconstruction_strategy": "per_celltype",
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                partial(
+                    predictors.VaePredictor,
+                    vae_cls=predictors.models.VAE,
+                    vae_kwargs={
+                        "hidden_features_in": 128,
+                        "hidden_features_out": 128,
+                        "latent_features": 10,
+                        "lr": 1e-3,
+                    },
+                    devices=1,
+                ),
+                all_at_once,
+            ),
+            {
+                "predictor_name": "VAE",
+                "reconstruction_strategy": "all_at_once",
+                "hidden_features_in": 128,
+                "hidden_features_out": 128,
+                "latent_features": 10,
+            },
+        ),
+    ]
+    for predictor in predictor_list[-1:]:
+        yield predictor
+
+
+def predictor_generator_old() -> Generator[Variable[typing.Predictor], Any, None]:
     """
     Generate available predictors wrapped in Variable objects for experiments.
 

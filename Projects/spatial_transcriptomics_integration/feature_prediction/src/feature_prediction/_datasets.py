@@ -13,8 +13,8 @@ from pathlib import Path
 from typing import Any, Callable, Generator, List, Tuple
 
 import numpy as np
-from anndata.typing import AnnData
 import scanpy as sc
+from anndata.typing import AnnData
 from exp_runner import Variable
 from nico2_lib import datasets
 from nico2_lib.label_transfer import label_transfer_tacco
@@ -76,7 +76,9 @@ def _liver_cell_atlas(dir: str) -> Tuple[AnnData, AnnData, str, str]:
     adata_dense_mut(query)
     adata_dense_mut(reference)
     reference_ct_key = "annot"
-    query.obs[reference_ct_key] = nmf_transfer(query, reference, reference_ct_key)
+    query.obs[reference_ct_key] = label_transfer_tacco(
+        query, reference, reference_ct_key
+    )
     return query, reference, reference_ct_key, reference_ct_key
 
 
@@ -169,7 +171,7 @@ def dataset_generator(
                 "tissue": "small_intestine",
             },
         ),
-         Variable(
+        Variable(
             mouse_small_intestine_sc,
             {
                 "dataset_name": "mouse_small_intestine_pseudospatial",
@@ -179,8 +181,8 @@ def dataset_generator(
                 "organism": "mouse",
                 "tissue": "small_intestine",
             },
-         ),
-         Variable(
+        ),
+        Variable(
             liver_cell_atlas,
             {
                 "dataset_name": "liver_cell_atlas_spatial",
@@ -192,8 +194,8 @@ def dataset_generator(
                 "organism": "human",
                 "tissue": "liver",
             },
-         ),
-         Variable(
+        ),
+        Variable(
             liver_cell_atlas_sc,
             {
                 "dataset_name": "liver_cell_atlas_pseudospatial",
@@ -203,7 +205,7 @@ def dataset_generator(
                 "organism": "human",
                 "tissue": "liver",
             },
-         ),
+        ),
         Variable(
             pbmc3k_sc,
             {
