@@ -566,7 +566,7 @@ requires-dist = [
     { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=d373db50d3f605908a27562dd9e094085205fd38" },
     { name = "ipykernel", specifier = ">=7.1.0" },
     { name = "ipython", specifier = ">=9.8.0" },
-    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=e91ce0ef51ff8cff1e32466f8d8eacf618c57979" },
+    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=2cfdd76600ce136909004f05912672640ff7ad0c" },
     { name = "scikit-misc", specifier = ">=0.5.2" },
     { name = "tacco", specifier = ">=0.4.0.post1" },
 ]
@@ -1419,7 +1419,7 @@ wheels = [
 [[package]]
 name = "nico2-lib"
 version = "0.1.0"
-source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=e91ce0ef51ff8cff1e32466f8d8eacf618c57979#e91ce0ef51ff8cff1e32466f8d8eacf618c57979" }
+source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=2cfdd76600ce136909004f05912672640ff7ad0c#2cfdd76600ce136909004f05912672640ff7ad0c" }
 dependencies = [
     { name = "anndata" },
     { name = "lightning" },
