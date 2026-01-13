@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 
-from curses.ascii import isspace
-from typing import Any, Dict, List, Optional
-from itertools import chain
 import argparse
+from curses.ascii import isspace
+from itertools import chain
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+import numpy as np
 import polars as pl
 import scanpy as sc
-import numpy as np
-
 from nico2_lib.metrics import (
-    mse_metric,
+    cosine_similarity_metric,
     explained_variance_metric,
     explained_variance_metric_v2,
+    mse_metric,
     pearson_metric,
     spearman_metric,
-    cosine_similarity_metric,
 )
-from feature_prediction import utils
 from scipy import sparse
+
+from feature_prediction import utils
 
 
 def compute_cellwise_metrics(
@@ -80,11 +80,19 @@ def expand_entry_with_cell_metrics(
     ]
 
 
+# def expand_df_with_cell_metrics(df: pl.DataFrame) -> pl.DataFrame:
+#    expanded_rows = chain.from_iterable(
+#        expand_entry_with_cell_metrics(entry) for entry in df.to_dicts()
+#    )
+#    return pl.DataFrame(expanded_rows)
 def expand_df_with_cell_metrics(df: pl.DataFrame) -> pl.DataFrame:
-    expanded_rows = chain.from_iterable(
-        expand_entry_with_cell_metrics(entry) for entry in df.to_dicts()
-    )
-    return pl.DataFrame(expanded_rows)
+    dfs: list[pl.DataFrame] = []
+
+    for entry in df.to_dicts():
+        chunk_df = pl.DataFrame(expand_entry_with_cell_metrics(entry))
+        dfs.append(chunk_df)
+
+    return pl.concat(dfs, how="diagonal_relaxed")
 
 
 def parse_args() -> argparse.Namespace:

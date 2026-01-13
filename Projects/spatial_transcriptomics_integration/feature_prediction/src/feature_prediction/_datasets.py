@@ -218,5 +218,5 @@ def dataset_generator(
             },
         ),
     ]
-    for dataset in my_datasets:
+    for dataset in my_datasets[:-1]:
         yield dataset

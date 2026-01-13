@@ -129,7 +129,7 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
                 predictors.NmfPredictor, all_at_once, {"n_components": 3}
             ),
             {
-                "predictor_name": "nmf",
+                "predictor_name": "nmf_3",
                 "reconstruction_strategy": "all_at_once",
                 "n_components": 3,
             },
@@ -139,9 +139,29 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
                 predictors.NmfPredictor, per_celltype, {"n_components": 3}
             ),
             {
-                "predictor_name": "nmf",
+                "predictor_name": "nmf_3",
                 "reconstruction_strategy": "per_celltype",
                 "n_components": 3,
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                predictors.NmfPredictor, all_at_once, {"n_components": 3}
+            ),
+            {
+                "predictor_name": "nmf_8",
+                "reconstruction_strategy": "all_at_once",
+                "n_components": 8,
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                predictors.NmfPredictor, per_celltype, {"n_components": 3}
+            ),
+            {
+                "predictor_name": "nmf_8",
+                "reconstruction_strategy": "per_celltype",
+                "n_components": 8,
             },
         ),
         Variable(
@@ -149,7 +169,7 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
                 predictors.NmfPredictor, all_at_once, {"n_components": "auto"}
             ),
             {
-                "predictor_name": "nmf",
+                "predictor_name": "nmf_auto",
                 "reconstruction_strategy": "all_at_once",
                 "n_components": "auto",
             },
@@ -159,7 +179,7 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
                 predictors.NmfPredictor, per_celltype, {"n_components": "auto"}
             ),
             {
-                "predictor_name": "nmf",
+                "predictor_name": "nmf_auto",
                 "reconstruction_strategy": "per_celltype",
                 "n_components": "auto",
             },
@@ -174,7 +194,7 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
         Variable(
             make_stratified_cv_predictor(predictors.TangramPredictor, per_celltype),
             {
-                "predictor_name": "Tangram",
+                "predictor_name": "tangram",
                 "reconstruction_strategy": "per_celltype",
             },
         ),
@@ -186,7 +206,7 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
                     vae_kwargs={
                         "hidden_features_in": 128,
                         "hidden_features_out": 128,
-                        "latent_features": 10,
+                        "latent_features": 8,
                         "lr": 1e-3,
                     },
                     devices=1,
@@ -194,15 +214,84 @@ def predictor_generator() -> Generator[Variable[typing.Predictor], Any, None]:
                 all_at_once,
             ),
             {
-                "predictor_name": "VAE",
+                "predictor_name": "VAE_8",
                 "reconstruction_strategy": "all_at_once",
                 "hidden_features_in": 128,
                 "hidden_features_out": 128,
-                "latent_features": 10,
+                "latent_features": 8,
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                partial(
+                    predictors.VaePredictor,
+                    vae_cls=predictors.models.VAE,
+                    vae_kwargs={
+                        "hidden_features_in": 128,
+                        "hidden_features_out": 128,
+                        "latent_features": 8,
+                        "lr": 1e-3,
+                    },
+                    devices=1,
+                ),
+                per_celltype,
+            ),
+            {
+                "predictor_name": "VAE_8",
+                "reconstruction_strategy": "per_celltype",
+                "hidden_features_in": 128,
+                "hidden_features_out": 128,
+                "latent_features": 8,
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                partial(
+                    predictors.VaePredictor,
+                    vae_cls=predictors.models.VAE,
+                    vae_kwargs={
+                        "hidden_features_in": 128,
+                        "hidden_features_out": 128,
+                        "latent_features": 3,
+                        "lr": 1e-3,
+                    },
+                    devices=1,
+                ),
+                all_at_once,
+            ),
+            {
+                "predictor_name": "VAE_3",
+                "reconstruction_strategy": "all_at_once",
+                "hidden_features_in": 128,
+                "hidden_features_out": 128,
+                "latent_features": 3,
+            },
+        ),
+        Variable(
+            make_stratified_cv_predictor(
+                partial(
+                    predictors.VaePredictor,
+                    vae_cls=predictors.models.VAE,
+                    vae_kwargs={
+                        "hidden_features_in": 128,
+                        "hidden_features_out": 128,
+                        "latent_features": 3,
+                        "lr": 1e-3,
+                    },
+                    devices=1,
+                ),
+                per_celltype,
+            ),
+            {
+                "predictor_name": "VAE_3",
+                "reconstruction_strategy": "all_at_once",
+                "hidden_features_in": 128,
+                "hidden_features_out": 128,
+                "latent_features": 3,
             },
         ),
     ]
-    for predictor in predictor_list[-1:]:
+    for predictor in predictor_list:
         yield predictor
 
 
