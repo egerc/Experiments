@@ -169,7 +169,7 @@ def _predictor_generator():
             },
         ),
     ]
-    for predictor in predictors[-1:]:
+    for predictor in predictors:
         yield predictor
 
 
