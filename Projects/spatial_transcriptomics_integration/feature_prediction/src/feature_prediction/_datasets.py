@@ -1,111 +1,79 @@
 """
-_datasets.py
-
-Provides loaders and generators for single-cell datasets.
-
-Includes functions to load query and reference datasets, optionally split
-a dataset randomly, and a generator to iterate over available datasets
-wrapped as Variable objects for experiments.
+Factories for building spatial and pseudospatial query–reference datasets.
 """
 
 from functools import partial, wraps
-from pathlib import Path
-from typing import Any, Callable, Generator, List, Tuple
+from typing import Callable, Dict, Tuple
 
+import exp_runner
+import nico2_lib as n2l
 import numpy as np
 import scanpy as sc
 from anndata.typing import AnnData
-from exp_runner import Variable
-from nico2_lib import datasets
 from nico2_lib.label_transfer import label_transfer_tacco
 
-from feature_prediction import typing
-from feature_prediction._label_transfer import nmf_transfer
 from feature_prediction.utils import adata_dense_mut
 
 
-def _mouse_small_intestine(dir: str) -> tuple[AnnData, AnnData, str, str]:
+def create_spatial_loader(
+    query_loader: Callable[[str], AnnData],
+    query_ct_key: str,
+    reference_loader: Callable[[str], AnnData],
+    reference_ct_key: str,
+) -> Callable[[str], Tuple[AnnData, AnnData, str, str]]:
+    """Create a spatial query–reference dataset loader.
+
+    The returned loader loads query and reference AnnData objects, densifies them,
+    performs label transfer from the reference to the query, and returns a
+    standardized (query, reference, cell-type keys) tuple.
+
+    Args:
+        query_loader: Function that loads the spatial query AnnData.
+        query_ct_key: Cell type column name to store predictions in the query.
+        reference_loader: Function that loads the reference AnnData.
+        reference_ct_key: Cell type column name in the reference.
+
+    Returns:
+        A loader function mapping a data directory to
+        (query, reference, query_ct_key, reference_ct_key).
     """
-    Load mouse small intestine MERFISH query and scRNA-seq reference datasets.
 
-    The query cell types are annotated using NMF label transfer from the reference.
+    def loader(dir: str) -> Tuple[AnnData, AnnData, str, str]:
+        query = query_loader(dir)
+        reference = reference_loader(dir)
 
-    Parameters
-    ----------
-    dir : str
-        Path to the data directory.
+        adata_dense_mut(query)
+        adata_dense_mut(reference)
 
-    Returns
-    -------
-    tuple[AnnData, AnnData, str, str]
-        Tuple containing (query, reference, query_ct_key, reference_ct_key)
-    """
-    query = datasets.small_mouse_intestine_merfish(dir)
-    reference = datasets.small_mouse_intestine_sc(dir)
-    adata_dense_mut(reference)
-    query_ct_key = "annotation"
-    reference_ct_key = "cluster"
-    query.obs[query_ct_key] = label_transfer_tacco(query, reference, reference_ct_key)
-    return query, reference, query_ct_key, reference_ct_key
+        query.obs[query_ct_key] = label_transfer_tacco(
+            query, reference, reference_ct_key
+        )
+
+        return query, reference, query_ct_key, reference_ct_key
+
+    return loader
 
 
-def _liver_cell_atlas(dir: str) -> Tuple[AnnData, AnnData, str, str]:
-    """
-    Load Xenium liver section as the query and human liver cell atlas as the reference.
+def create_pseudospatial_loader(
+    loader_func: Callable[[str], AnnData], ct_key: str
+) -> Callable[[str], Tuple[AnnData, AnnData, str, str]]:
+    """Create a pseudospatial query–reference dataset loader.
 
-    The query cell types are annotated via NMF label transfer from the reference dataset.
+    The returned loader randomly splits a single AnnData object into query and
+    reference halves. The query is restricted to the top 500 highly variable genes.
 
-    Parameters
-    ----------
-    dir : str
-        Path to the directory containing the dataset files.
+    Args:
+        loader_func: Function that loads a single AnnData object.
+        ct_key: Cell type column name shared by query and reference.
 
-    Returns
-    -------
-    Tuple[AnnData, AnnData, str, str]
-        A tuple containing:
-        - query AnnData (Xenium section) with cells to reconstruct
-        - reference AnnData (human liver cell atlas) used for prediction
-        - query cell type key
-        - reference cell type key
-    """
-    query = datasets.xenium_10x_loader(
-        "Xenium_V1_hLiver_nondiseased_section_FFPE", dir=dir
-    )
-    reference = datasets.human_liver_cell_atlas(dir)
-    adata_dense_mut(query)
-    adata_dense_mut(reference)
-    reference_ct_key = "annot"
-    query.obs[reference_ct_key] = label_transfer_tacco(
-        query, reference, reference_ct_key
-    )
-    return query, reference, reference_ct_key, reference_ct_key
-
-
-def _split_loader_adata(
-    loader_func: Callable[[], AnnData], ct_key: str
-) -> typing.Dataset:
-    """
-    Higher-order function that wraps a loader function to randomly split the AnnData.
-    The query subset is filtered to the top 500 highly variable genes.
-
-    Parameters
-    ----------
-    loader_func : Callable[[], AnnData]
-        Function returning an AnnData object to split.
-    ct_key : str
-        The cell type column name in the AnnData object.
-
-    Returns
-    -------
-    Callable[[], Tuple[AnnData, AnnData, str, str]]
-        Loader function that returns a tuple of (query, reference, query_ct_key, reference_ct_key)
-        with the dataset randomly split in half and the query filtered to the top 500 HVGs.
+    Returns:
+        A loader function mapping a data directory to
+        (query, reference, ct_key, ct_key).
     """
 
     @wraps(loader_func)
-    def split_loader() -> Tuple[AnnData, AnnData, str, str]:
-        adata = loader_func()
+    def split_loader(dir: str) -> Tuple[AnnData, AnnData, str, str]:
+        adata = loader_func(dir)
         n_cells = adata.n_obs
         shuffled_idx = np.random.permutation(n_cells)
         split_idx = n_cells // 2
@@ -131,92 +99,66 @@ def _pbmc3k_processed() -> AnnData:
     return adata
 
 
-def dataset_generator(
-    dir: str,
-) -> Generator[Variable[typing.Dataset], Any, None]:
-    """
-    Generate available datasets wrapped as Variable objects for experiments.
-
-    Parameters
-    ----------
-    dir : str
-        Path to the data directory.
-
-    Yields
-    ------
-    Variable[typing.Dataset]
-        Dataset loaders with metadata, ready for use in experiments.
-    """
-    mouse_small_intestine = partial(_mouse_small_intestine, dir=dir)
-    mouse_small_intestine_sc = _split_loader_adata(
-        partial(datasets.small_mouse_intestine_sc, dir=dir), "cluster"
-    )
-    liver_cell_atlas = partial(_liver_cell_atlas, dir=dir)
-    liver_cell_atlas_sc = _split_loader_adata(
-        partial(datasets.human_liver_cell_atlas, dir=dir), "annot"
-    )
-    pbmc3k_sc = _split_loader_adata(_pbmc3k_processed, "louvain")
-
-    my_datasets: List[Variable[typing.Dataset]] = [
-        Variable(
-            mouse_small_intestine,
-            {
-                "dataset_name": "mouse_small_intestine_spatial",
-                "spatial_data_path": "mouse_small_intestine_merfish",
-                "spatial_data": "real",
-                "sc_data_path": "mouse_small_intestine_sc",
-                "spatial_annot_col": "annotation",
-                "sc_annot_col": "cluster",
-                "organism": "mouse",
-                "tissue": "small_intestine",
-            },
+DATASET_MAPPING: Dict[
+    str, exp_runner.Variable[Callable[[str], Tuple[AnnData, AnnData, str, str]]]
+] = {
+    "mouse_small_intestine_spatial": exp_runner.Variable(
+        create_spatial_loader(
+            query_loader=n2l.dt.small_mouse_intestine_merfish,
+            query_ct_key="annotation",
+            reference_loader=n2l.dt.small_mouse_intestine_sc,
+            reference_ct_key="cluster",
         ),
-        Variable(
-            mouse_small_intestine_sc,
-            {
-                "dataset_name": "mouse_small_intestine_pseudospatial",
-                "sc_data_path": "mouse_small_intestine_sc",
-                "spatial_data": "pseudo",
-                "sc_annot_col": "cluster",
-                "organism": "mouse",
-                "tissue": "small_intestine",
-            },
+        {
+            "dataset_id": 0,
+            "dataset_name": "small_mouse_intestine_spatial",
+            "organism": "mouse",
+            "tissue": "small_intestine",
+            "dataset_type": "spatial",
+        },
+    ),
+    "mouse_small_intestine_pseudospatial": exp_runner.Variable(
+        create_pseudospatial_loader(
+            loader_func=n2l.dt.small_mouse_intestine_sc,
+            ct_key="cluster",
         ),
-        Variable(
-            liver_cell_atlas,
-            {
-                "dataset_name": "liver_cell_atlas_spatial",
-                "sc_data_path": "human_liver_cell_atlas",
-                "spatial_data": "real",
-                "spatial_data_path": "Xenium_V1_hLiver_nondiseased_section_FFPE",
-                "spatial_annot_col": "annot",
-                "sc_annot_col": "annot",
-                "organism": "human",
-                "tissue": "liver",
-            },
+        {
+            "dataset_id": 1,
+            "dataset_name": "small_mouse_intestine_pseudospatial",
+            "organism": "mouse",
+            "tissue": "small_intestine",
+            "dataset_type": "pseudospatial",
+        },
+    ),
+    "human_liver_spatial": exp_runner.Variable(
+        create_spatial_loader(
+            query_loader=partial(
+                n2l.dt.xenium_10x_loader,
+                name="Xenium_V1_hLiver_nondiseased_section_FFPE",
+            ),
+            query_ct_key="annot",
+            reference_loader=n2l.dt.human_liver_cell_atlas,
+            reference_ct_key="annot",
         ),
-        Variable(
-            liver_cell_atlas_sc,
-            {
-                "dataset_name": "liver_cell_atlas_pseudospatial",
-                "sc_data_path": "human_liver_cell_atlas",
-                "spatial_data": "pseudo",
-                "sc_annot_col": "annot",
-                "organism": "human",
-                "tissue": "liver",
-            },
+        {
+            "dataset_id": 2,
+            "dataset_name": "human_liver_spatial",
+            "organism": "human",
+            "tissue": "liver",
+            "dataset_type": "spatial",
+        },
+    ),
+    "human_liver_pseudospatial": exp_runner.Variable(
+        create_pseudospatial_loader(
+            loader_func=n2l.dt.human_liver_cell_atlas,
+            ct_key="annot",
         ),
-        Variable(
-            pbmc3k_sc,
-            {
-                "dataset_name": "pbmc3k_processed_pseudospatial",
-                "spatial_data": "pseudo",
-                "sc_data_path": "pbmc3k_processed",
-                "sc_annot_col": "louvain",
-                "organism": "human",
-                "tissue": "pbmcs",
-            },
-        ),
-    ]
-    for dataset in my_datasets[:-1]:
-        yield dataset
+        {
+            "dataset_id": 3,
+            "dataset_name": "human_liver_pseudospatial",
+            "organism": "human",
+            "tissue": "liver",
+            "dataset_type": "pseudospatial",
+        },
+    ),
+}

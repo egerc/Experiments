@@ -566,7 +566,7 @@ requires-dist = [
     { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=d373db50d3f605908a27562dd9e094085205fd38" },
     { name = "ipykernel", specifier = ">=7.1.0" },
     { name = "ipython", specifier = ">=9.8.0" },
-    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=be14e3787fcf8501f95354c7b6ac8b1fdff6d1f3" },
+    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=389c6aa796ed768eaee71225edbc16037bca36ee" },
     { name = "scikit-misc", specifier = ">=0.5.2" },
     { name = "tacco", specifier = ">=0.4.0.post1" },
 ]
@@ -1432,7 +1432,7 @@ wheels = [
 [[package]]
 name = "nico2-lib"
 version = "0.1.0"
-source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=be14e3787fcf8501f95354c7b6ac8b1fdff6d1f3#be14e3787fcf8501f95354c7b6ac8b1fdff6d1f3" }
+source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=389c6aa796ed768eaee71225edbc16037bca36ee#389c6aa796ed768eaee71225edbc16037bca36ee" }
 dependencies = [
     { name = "anndata" },
     { name = "kneed" },
