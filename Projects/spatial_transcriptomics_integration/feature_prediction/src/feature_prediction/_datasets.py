@@ -132,9 +132,8 @@ DATASET_MAPPING: Dict[
     ),
     "human_liver_spatial": exp_runner.Variable(
         create_spatial_loader(
-            query_loader=partial(
-                n2l.dt.xenium_10x_loader,
-                name="Xenium_V1_hLiver_nondiseased_section_FFPE",
+            query_loader=lambda dir: n2l.dt.xenium_10x_loader(
+                name="Xenium_V1_hLiver_nondiseased_section_FFPE", dir=dir
             ),
             query_ct_key="annot",
             reference_loader=n2l.dt.human_liver_cell_atlas,

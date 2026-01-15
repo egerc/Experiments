@@ -22,7 +22,7 @@ class _Input(exp_runner.VarProduct):
 
 @exp_runner.runner()
 def _gene_pred_benchmark(input: _Input) -> List[exp_runner.MetaData]:
-    print(input)
+    # print(input)
     rng = np.random.default_rng(input.seed)
     query, reference = input.datasets
     shared_genes = np.intersect1d(query.var_names, reference.var_names).tolist()
@@ -76,7 +76,9 @@ def _dataset_generator(
             )
 
         loader_variable = DATASET_MAPPING[dataset_key]
-        query, reference, query_ct_key, reference_ct_key = loader_variable.value(dir)
+        query, reference, query_ct_key, reference_ct_key = loader_variable.value(
+            dir=dir
+        )
         if n_obs_ceiling is not None:
             n_obs_query = min(query.n_obs, n_obs_ceiling)
             n_obs_ref = min(reference.n_obs, n_obs_ceiling)
@@ -168,6 +170,67 @@ def _predictor_generator():
                 "latent_features": 3,
             },
         ),
+        exp_runner.Variable(
+            make_shared_gene_predictor(
+                partial(
+                    n2l.pd.VaePredictor,
+                    vae_cls=n2l.pd.models.LDVAE,
+                    vae_kwargs={
+                        "hidden_features_in": 128,
+                        "latent_features": 3,
+                        "lr": 1e-3,
+                    },
+                    devices=1,
+                )
+            ),
+            {
+                "predictor_id": 4,
+                "predictor_name": "LDVAE_3",
+                "architecture": "LDVAE",
+                "hidden_features_in": 128,
+                "latent_features": 3,
+            },
+        ),
+        exp_runner.Variable(
+            make_shared_gene_predictor(
+                partial(
+                    n2l.pd.VaePredictor,
+                    vae_cls=n2l.pd.models.LEVAE,
+                    vae_kwargs={
+                        "hidden_features_out": 128,
+                        "latent_features": 3,
+                        "lr": 1e-3,
+                    },
+                    devices=1,
+                )
+            ),
+            {
+                "predictor_id": 4,
+                "predictor_name": "LEVAE_3",
+                "architecture": "LEVAE",
+                "hidden_features_out": 128,
+                "latent_features": 3,
+            },
+        ),
+        exp_runner.Variable(
+            make_shared_gene_predictor(
+                partial(
+                    n2l.pd.VaePredictor,
+                    vae_cls=n2l.pd.models.LVAE,
+                    vae_kwargs={
+                        "latent_features": 3,
+                        "lr": 1e-3,
+                    },
+                    devices=1,
+                )
+            ),
+            {
+                "predictor_id": 4,
+                "predictor_name": "LVAE_3",
+                "architecture": "LVAE",
+                "latent_features": 3,
+            },
+        ),
     ]
     for predictor in predictors:
         yield predictor
@@ -182,8 +245,8 @@ def gene_pred_benchmark(
     dataset_keys = dataset_keys or [
         "mouse_small_intestine_spatial",
         "mouse_small_intestine_pseudospatial",
-        # "human_liver_spatial",
-        # "human_liver_pseudospatial",
+        "human_liver_spatial",
+        "human_liver_pseudospatial",
     ]
 
     seed_generator = (
