@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable, Tuple
+from typing import Callable, Dict, Tuple
 
 import exp_runner
 import nico2_lib as n2l
