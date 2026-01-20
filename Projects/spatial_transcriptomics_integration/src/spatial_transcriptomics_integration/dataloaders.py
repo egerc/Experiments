@@ -40,7 +40,7 @@ def _create_spatial_loader(
         adata_dense_mut(query)
         adata_dense_mut(reference)
 
-        query.obs[query_ct_key] = n2l.lt.label_transfer_tacco(
+        query.obs[query_ct_key] = n2l.lt.scvi_transfer(
             query, reference, reference_ct_key
         )
 

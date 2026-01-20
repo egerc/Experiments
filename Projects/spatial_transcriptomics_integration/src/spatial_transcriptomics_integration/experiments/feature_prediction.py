@@ -9,7 +9,7 @@ import numpy as np
 import scanpy as sc
 from anndata.typing import AnnData
 
-from spatial_transcriptomics_integration.datasets import DATASET_MAPPING
+from spatial_transcriptomics_integration.dataloaders import DATASET_MAPPING
 from spatial_transcriptomics_integration.predictor_functions import PREDICTOR_MAPPING
 from spatial_transcriptomics_integration.utils import adata_dense_mut
 
