@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.13"
 
 [[package]]
@@ -795,30 +795,6 @@ wheels = [
 ]
 
 [[package]]
-name = "intel-cmplr-lib-ur"
-version = "2025.3.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "umf" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/9a/a338de7fc24087c40d38401372618c8465103795baefe941eea3acf55678/intel_cmplr_lib_ur-2025.3.1-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:1730cce0c65591d157d5fa1acdc8447a9ed419b527ea52e66db0815a0fb5e444", size = 30771263, upload-time = "2025-11-03T05:32:33.173Z" },
-    { url = "https://files.pythonhosted.org/packages/52/69/fa0bb5e1634761836259a9cca5a748770ba1806de6394606e18723c6bc4d/intel_cmplr_lib_ur-2025.3.1-py2.py3-none-win_amd64.whl", hash = "sha256:f34122b85a5e7747566643719fde8a547f7f8e73994c2b8c539c2c789d708f02", size = 1256177, upload-time = "2025-11-03T05:32:07.313Z" },
-]
-
-[[package]]
-name = "intel-openmp"
-version = "2025.3.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "intel-cmplr-lib-ur" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/da/ad/72e2fb7e30f5fd2b7650b721c5979cf2a614538fd99afb45672b31157fb9/intel_openmp-2025.3.1-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:2c3541ea275f0e8417243612a16b6f1f4d15c1e9fcc96667db0824d0735f1413", size = 74333087, upload-time = "2025-11-03T05:32:21.171Z" },
-    { url = "https://files.pythonhosted.org/packages/a9/e4/cacef8ad8570b4ae2b850f3eaab86be0b0296fc9683bdcd9ae8e10be7ecb/intel_openmp-2025.3.1-py2.py3-none-win_amd64.whl", hash = "sha256:bf325e802d9f52f95ca8d2558bb66f30d1839aed30426533063a78a3587e9035", size = 32084006, upload-time = "2025-11-03T05:31:54.415Z" },
-]
-
-[[package]]
 name = "ipykernel"
 version = "7.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1231,34 +1207,6 @@ wheels = [
 ]
 
 [[package]]
-name = "mkl"
-version = "2025.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "intel-openmp" },
-    { name = "onemkl-license" },
-    { name = "tbb" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/b4/ef531295ed33b929c6c5214421eeebe370f1be22536b6956b4aaf18fdbc5/mkl-2025.3.0-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:7b81f5d2e034637b187ca58666878c4e8889988a78e39e0b6ee92e846568f660", size = 195022935, upload-time = "2025-10-22T17:56:20.854Z" },
-    { url = "https://files.pythonhosted.org/packages/75/0e/b863a60889643e21d5d8d6b619f913703257878979b1df22d344a56276d0/mkl-2025.3.0-py2.py3-none-win_amd64.whl", hash = "sha256:2dbf81b016150c2ce418d80707dcce11d0e3c56f20e1d54813174e7665405561", size = 155530420, upload-time = "2025-10-22T17:57:46.918Z" },
-]
-
-[[package]]
-name = "mkl-service"
-version = "2.6.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "mkl" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/bc/069d3cd74e0e83d23c29aab02a57ea66b432e761ed879c104ddd438ff0f5/mkl_service-2.6.1-0-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:b535e27ce89a156d345d793d8afcbc77077bebe6db4a6b4a85f34456bb081d9e", size = 78164, upload-time = "2025-12-18T03:23:34.877Z" },
-    { url = "https://files.pythonhosted.org/packages/aa/52/19f4699fc9bfaa3f45112cc86a709463e8792d44e17b22adc6144e8fe5c2/mkl_service-2.6.1-0-cp313-cp313-win_amd64.whl", hash = "sha256:6a42aa470e27e7d8d1ecf3eddd368e1cc06813d567acfaaccc1486b761e3449f", size = 82561, upload-time = "2025-12-18T03:23:49.811Z" },
-    { url = "https://files.pythonhosted.org/packages/0d/1e/b0b825650612941d356f8025d5e5c23c5035ff6c61fc993e6a498b4c99cc/mkl_service-2.6.1-0-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:48efaabf14d1ad09d2f6f264992b435bcbf54199e0968c5357b513802372ed4b", size = 78656, upload-time = "2025-12-18T03:24:03.975Z" },
-    { url = "https://files.pythonhosted.org/packages/a8/82/7eba7190ef6e9f6fc969cfcb008a1cc471b3c903265c862c80a6a3478812/mkl_service-2.6.1-0-cp314-cp314-win_amd64.whl", hash = "sha256:ca5ceddfbcb58caab0572f8541f5e68eabaed73932c37067286572c8646ebfe4", size = 82917, upload-time = "2025-12-18T03:24:18.602Z" },
-]
-
-[[package]]
 name = "mpmath"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1405,7 +1353,7 @@ wheels = [
 [[package]]
 name = "nico2-lib"
 version = "0.1.0"
-source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=389c6aa796ed768eaee71225edbc16037bca36ee#389c6aa796ed768eaee71225edbc16037bca36ee" }
+source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=1bea5cb96df57fa0f846c0a3d4dbb31f4bf7c1b5#1bea5cb96df57fa0f846c0a3d4dbb31f4bf7c1b5" }
 dependencies = [
     { name = "anndata" },
     { name = "kneed" },
@@ -1414,7 +1362,6 @@ dependencies = [
     { name = "scipy" },
     { name = "spatialdata" },
     { name = "spatialdata-io" },
-    { name = "tacco" },
     { name = "tangram-sc" },
     { name = "torch" },
 ]
@@ -1679,15 +1626,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a4/44/647843d872aa136609e805c06e9f9b2cdcb6e2a58ec485322311dec7b64d/ome_zarr-0.12.2.tar.gz", hash = "sha256:834e801e9aa4b870bed3dde2dc2a3ad7f388f1a13ffa6b3d7aade90691b9de64", size = 69891, upload-time = "2025-08-22T08:57:13.64Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4f/21/59baa90924b815b70f88045f0b206b7eab0b68b461c0192692486b516ab7/ome_zarr-0.12.2-py3-none-any.whl", hash = "sha256:655fe1b11ca01148603f9931a5b0af31207dfc03a3a35f9b0ab8639790282bbd", size = 41410, upload-time = "2025-08-22T08:57:12.44Z" },
-]
-
-[[package]]
-name = "onemkl-license"
-version = "2025.3.0"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/11/b43e8cde058c368ce7f8f9b1ca9f812f7397e4309148da7d24cb6b81b513/onemkl_license-2025.3.0-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:a810b25bb24a90db4492d81c71cde13183d8951ce26960d6dc56d4f4e3dc95ff", size = 58936, upload-time = "2025-10-22T17:55:41.998Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/8e/98ad8181e4af2ea7a6c7827ef6d24c73b6ee96a2890eacf46103f596195d/onemkl_license-2025.3.0-py2.py3-none-win_amd64.whl", hash = "sha256:35a179620bcadbcc3d17d74f7f72cab75889f3736b89685f6a68158325b65e91", size = 58961, upload-time = "2025-10-22T17:57:54.095Z" },
 ]
 
 [[package]]
@@ -2059,24 +1997,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/cd/05/0a34433a064256a578f1783a10da6df098ceaa4a57bbeaa96a6c0352786b/pure_eval-0.2.3.tar.gz", hash = "sha256:5f4e983f40564c576c7c8635ae88db5956bb2229d7e9237d03b3c0b0190eaf42", size = 19752, upload-time = "2024-07-21T12:58:21.801Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8e/37/efad0257dc6e593a18957422533ff0f87ede7c9c6ea010a2177d738fb82f/pure_eval-0.2.3-py3-none-any.whl", hash = "sha256:1db8e35b67b3d218d818ae653e27f06c3aa420901fa7b081ca98cbedc874e0d0", size = 11842, upload-time = "2024-07-21T12:58:20.04Z" },
-]
-
-[[package]]
-name = "pyamg"
-version = "5.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/54/f1/e7f0466af00dc59b6592f03499a8ca1c839d5265a045d0b010b574f67143/pyamg-5.3.0.tar.gz", hash = "sha256:5323d0f1a4cd999be246a90d580c9e1e9b584b98887f6298d397611087ef860b", size = 4161140, upload-time = "2025-08-24T02:06:10.133Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/b9/705e5f5177d545114d8ae46245de6bb5b8e3e92d9886a31b7fa475762efd/pyamg-5.3.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:c8e70912b1f6fd02c2d40ca10f6e94cce24181a1baa029f084aee74600242686", size = 1852677, upload-time = "2025-08-24T02:05:59.084Z" },
-    { url = "https://files.pythonhosted.org/packages/48/39/9da477018dd8eee06f064eee3d9047089c0621b3bda63ee99f256b27b287/pyamg-5.3.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:e8f771f1ad314534d14d6d8a47d289b191f081abdd1443c491ac93f6d3102be5", size = 1763803, upload-time = "2025-08-24T02:06:01.006Z" },
-    { url = "https://files.pythonhosted.org/packages/63/f3/c13ae1422434baeefe4d4f306a1cc77f024fe96d2abab3c212cfa1bf3ff8/pyamg-5.3.0-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5cc223c66a7aca06fba898eb5e8ede6bb7974a9ddf7b8a98f56143c829e63631", size = 1900343, upload-time = "2025-08-24T02:06:03.103Z" },
-    { url = "https://files.pythonhosted.org/packages/c9/86/13b27316cf5f984720b736b58d7a0d8bf94870b99a546a0137f53f36924c/pyamg-5.3.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:fddf30940d422d97a24b6211e3405bf707688a94d0683780ae40073209c3aa6d", size = 2946401, upload-time = "2025-08-24T02:06:05.101Z" },
-    { url = "https://files.pythonhosted.org/packages/96/e2/ac14da5a3df18652f651788bf8eda9dcf99a485787ccb28add2fcd5d8eda/pyamg-5.3.0-cp313-cp313-win32.whl", hash = "sha256:6f7ea204aafc7e57a1900d47067430b059954d293a11025aea8616e5b6fba493", size = 1564120, upload-time = "2025-08-24T02:06:06.688Z" },
-    { url = "https://files.pythonhosted.org/packages/d5/b4/72f17561584b51d9c9ca121b5307699eb6aa8300c812a31c8b4ea4ad9d2a/pyamg-5.3.0-cp313-cp313-win_amd64.whl", hash = "sha256:3965844194dc15be5c9d7198086b58496c2833e40e60b1133ab340d24fac950c", size = 1681868, upload-time = "2025-08-24T02:06:08.388Z" },
 ]
 
 [[package]]
@@ -2792,19 +2712,6 @@ wheels = [
 ]
 
 [[package]]
-name = "sparse-dot-mkl"
-version = "0.9.10"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/91/9f82df25dee9c8e4019f9aa05a3b854d2390f3bc6963279bda79f3ad5284/sparse_dot_mkl-0.9.10.tar.gz", hash = "sha256:8af89242e53654c168b4843e5c7ed8e9f55d7778f60ac70b75a5309eff1a1164", size = 48342, upload-time = "2025-10-23T14:53:17.134Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ea/ee/bfb201a532bc55dd7024e9b47348755b6037662ffbad2880dc5c42e283c1/sparse_dot_mkl-0.9.10-py3-none-any.whl", hash = "sha256:d554784392d8049eebae516920b052b09c15655aeb9acfc880f8237c43145672", size = 61276, upload-time = "2025-10-23T14:53:15.989Z" },
-]
-
-[[package]]
 name = "spatial-image"
 version = "1.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2829,7 +2736,6 @@ dependencies = [
     { name = "ipython" },
     { name = "nico2-lib" },
     { name = "scikit-misc" },
-    { name = "tacco" },
     { name = "tangram-sc" },
 ]
 
@@ -2839,9 +2745,8 @@ requires-dist = [
     { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=d373db50d3f605908a27562dd9e094085205fd38" },
     { name = "ipykernel", specifier = ">=7.1.0" },
     { name = "ipython", specifier = ">=9.8.0" },
-    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=389c6aa796ed768eaee71225edbc16037bca36ee" },
+    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=1bea5cb96df57fa0f846c0a3d4dbb31f4bf7c1b5" },
     { name = "scikit-misc", specifier = ">=0.5.2" },
-    { name = "tacco", specifier = ">=0.4.0.post1" },
     { name = "tangram-sc", specifier = ">=1.0.4" },
 ]
 
@@ -2959,34 +2864,6 @@ wheels = [
 ]
 
 [[package]]
-name = "tacco"
-version = "0.4.0.post1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anndata" },
-    { name = "joblib" },
-    { name = "matplotlib" },
-    { name = "mkl" },
-    { name = "mkl-service" },
-    { name = "numba" },
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "pyamg" },
-    { name = "requests" },
-    { name = "scanpy" },
-    { name = "scikit-learn" },
-    { name = "scipy" },
-    { name = "seaborn" },
-    { name = "sparse-dot-mkl" },
-    { name = "statsmodels" },
-    { name = "threadpoolctl" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b8/e4/9ac7fc4a601c5719a9127f5fb54587e1eb3541e1654f4ee0aa45c5216d55/tacco-0.4.0.post1.tar.gz", hash = "sha256:b64a3a056bc36102c189de5108ccb55f33f35e292250da106dcb2d5817e4495d", size = 573905, upload-time = "2024-07-16T00:44:00.713Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/75/f1/84add13569d5fe941d6e09b660877def99f4a46c7b617c364f68d191db37/tacco-0.4.0.post1-py3-none-any.whl", hash = "sha256:260864b25c76104fbf799c6ee3a19cf084962376d2f868f9de99655466defa37", size = 191427, upload-time = "2024-07-16T00:43:58.454Z" },
-]
-
-[[package]]
 name = "tangram-sc"
 version = "1.0.4"
 source = { registry = "https://pypi.org/simple" }
@@ -3005,27 +2882,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/81/a9/af553595809cd11ae8718faa7a2644dcf7d751d7d09c69670e9f9ef9ac06/tangram-sc-1.0.4.tar.gz", hash = "sha256:6ced24573e288fa01a8070e3c7600058de51296bac1702515db87c310da6ac13", size = 31341, upload-time = "2023-02-09T00:01:40.399Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a7/e6/92b364b9eeeb547735b72a7c1b8312eca4937865882614835a74779fdbd5/tangram_sc-1.0.4-py3-none-any.whl", hash = "sha256:12c1fa121d0ad237465fdad544d5cbe611ad411b5ca89218c6bb68da0723d60c", size = 31320, upload-time = "2023-02-09T00:01:38.817Z" },
-]
-
-[[package]]
-name = "tbb"
-version = "2022.3.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "tcmlib" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e3/9e/b7f1f7af53580e4e8cf39cf51b14c8e295d767b3ae9d78b5007d6058cfc8/tbb-2022.3.0-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:a7e122cb98a6f8823940341aa323dcdfffa77e36712a22a1ae3a76430fa9f412", size = 4178631, upload-time = "2025-10-22T18:00:00.181Z" },
-    { url = "https://files.pythonhosted.org/packages/19/e7/8a3ae90c12186033dfd38a7292b2caef3ed10813162ab4713149191d70ef/tbb-2022.3.0-py3-none-win_amd64.whl", hash = "sha256:bb893f5772855ff2fd21867cb5c2806cb7d2960a178e660b342bc6a706a6ebf4", size = 422733, upload-time = "2025-10-22T18:01:20.903Z" },
-]
-
-[[package]]
-name = "tcmlib"
-version = "1.4.1"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a1/a4/38e8b5a27b66ab286168ba6c449771ed71d71ec76524e7f12401474a5151/tcmlib-1.4.1-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:0d5bd98db48d31bec7fedba5c23599bf9ae43c7016d4c3946d25242d320cee89", size = 2731276, upload-time = "2025-10-22T17:57:02.392Z" },
-    { url = "https://files.pythonhosted.org/packages/eb/4d/2b1d55dba475f602197e284b9a5e5460139a9c5ef2bfb63c8d2a1fafc163/tcmlib-1.4.1-py2.py3-none-win_amd64.whl", hash = "sha256:5202a1fd8541182fbd4ef72848784e4bf94340152d7ddff33d401d30930fa53c", size = 370347, upload-time = "2025-10-22T18:00:36.37Z" },
 ]
 
 [[package]]
@@ -3226,18 +3082,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/94/9a/a1e4a257a9aa979dac4f6d5781dac929cbb0949959e2003ed82657d10b0f/umap_learn-0.5.11.tar.gz", hash = "sha256:31566ffd495fbf05d7ab3efcba703861c0f5e6fc6998a838d0e2becdd00e54f5", size = 96409, upload-time = "2026-01-12T20:44:47.553Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/d2/fcf7192dd1cd8c090b6cfd53fa223c4fb2887a17c47e06bc356d44f40dfb/umap_learn-0.5.11-py3-none-any.whl", hash = "sha256:cb17adbde9d544ba79481b3ab4d81ac222e940f3d9219307bea6044f869af3cc", size = 90890, upload-time = "2026-01-12T20:44:46.511Z" },
-]
-
-[[package]]
-name = "umf"
-version = "1.0.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "tcmlib" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/8e/4a90b6aa955268988e7491f502b7ac2bd65cb954b4979bfcc892cf019b50/umf-1.0.2-py2.py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:ef4d144a2007a73a1a22ee575ee4f5a1894a206532c6f6d77b4cf548643502fb", size = 359878, upload-time = "2025-10-22T17:58:50.929Z" },
-    { url = "https://files.pythonhosted.org/packages/4c/8c/dfbcedb97b56b2e87a9fe61e43e70b09abb439ed90e06e08d4365fc60c5f/umf-1.0.2-py2.py3-none-win_amd64.whl", hash = "sha256:695b6be076a7bd2037b0cdbe5ee025f9ae74934cc78bdf25df8b52e8f746e457", size = 249097, upload-time = "2025-10-22T17:57:00.279Z" },
 ]
 
 [[package]]

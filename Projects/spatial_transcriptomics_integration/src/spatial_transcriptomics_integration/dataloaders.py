@@ -1,6 +1,7 @@
 from functools import wraps
 from typing import Callable, Tuple
 
+import exp_runner
 import nico2_lib as n2l
 import numpy as np
 import scanpy as sc
@@ -85,11 +86,12 @@ def _create_pseudospatial_loader(
 
     return split_loader
 
+
 DATASET_MAPPING: Dict[
     str, exp_runner.Variable[Callable[[str], Tuple[AnnData, AnnData, str, str]]]
 ] = {
     "mouse_small_intestine_spatial": exp_runner.Variable(
-        create_spatial_loader(
+        _create_spatial_loader(
             query_loader=n2l.dt.small_mouse_intestine_merfish,
             query_ct_key="annotation",
             reference_loader=n2l.dt.small_mouse_intestine_sc,
@@ -104,7 +106,7 @@ DATASET_MAPPING: Dict[
         },
     ),
     "mouse_small_intestine_pseudospatial": exp_runner.Variable(
-        create_pseudospatial_loader(
+        _create_pseudospatial_loader(
             loader_func=n2l.dt.small_mouse_intestine_sc,
             ct_key="cluster",
         ),
@@ -117,7 +119,7 @@ DATASET_MAPPING: Dict[
         },
     ),
     "human_liver_spatial": exp_runner.Variable(
-        create_spatial_loader(
+        _create_spatial_loader(
             query_loader=lambda dir: n2l.dt.xenium_10x_loader(
                 name="Xenium_V1_hLiver_nondiseased_section_FFPE", dir=dir
             ),
@@ -134,7 +136,7 @@ DATASET_MAPPING: Dict[
         },
     ),
     "human_liver_pseudospatial": exp_runner.Variable(
-        create_pseudospatial_loader(
+        _create_pseudospatial_loader(
             loader_func=n2l.dt.human_liver_cell_atlas,
             ct_key="annot",
         ),

@@ -1,5 +1,16 @@
+from functools import partial
+from typing import Any, Callable, Dict, Type
+
+import anndata as ad
+import exp_runner
+import nico2_lib as n2l
+import numpy as np
+from anndata.typing import AnnData
+from nico2_lib.predictors._nn_models import _models as models
+
+
 def make_shared_gene_predictor(
-    PredictorCls: Type[predictors.PredictorProtocol],
+    PredictorCls: Type[n2l.pd.PredictorProtocol],
     predictor_kwargs: Dict[str, Any] | None = None,
 ) -> Callable[[AnnData, AnnData], AnnData]:
     """
@@ -23,7 +34,7 @@ def make_shared_gene_predictor(
         X_ref_only = reference[:, ref_only_genes].X
         X_query_shared = query[:, shared_genes].X
 
-        X_recon = model.fit(X_ref_shared, X_ref_only).predict(X_query_shared)
+        X_recon = model.fit(X_ref_shared, X_ref_only).predict(X_query_shared)  # type: ignore
 
         return ad.AnnData(
             X=X_recon,
@@ -33,120 +44,115 @@ def make_shared_gene_predictor(
 
     return predictor
 
-PREDICTOR_MAPPING = [
-   exp_runner.Variable(
-       make_shared_gene_predictor(n2l.pd.NmfPredictor, {"n_components": 3}),
-       {
-           "predictor_id": 0,
-           "predictor_name": "nmf_3",
-           "architecture": "NMF",
-           "n_components": 3,
-       },
-   ),
-   exp_runner.Variable(
-       make_shared_gene_predictor(n2l.pd.NmfPredictor, {"n_components": 8}),
-       {
-           "predictor_id": 1,
-           "predictor_name": "nmf_8",
-           "architecture": "NMF",
-           "n_components": 8,
-       },
-   ),
-   exp_runner.Variable(
-       make_shared_gene_predictor(n2l.pd.NmfPredictor, {"n_components": "auto"}),
-       {
-           "predictor_id": 2,
-           "predictor_name": "nmf_auto",
-           "architecture": "NMF",
-           "n_components": 8,
-       },
-   ),
-   exp_runner.Variable(
-       make_shared_gene_predictor(n2l.pd.TangramPredictor),
-       {"predictor_id": 3, "predictor_name": "tangram", "architecture": "Tangram"},
-   ),
-   exp_runner.Variable(
-       make_shared_gene_predictor(
-           partial(
-               n2l.pd.VaePredictor,
-               vae_cls=n2l.pd.models.VAE,
-               vae_kwargs={
-                   "hidden_features_in": 128,
-                   "hidden_features_out": 128,
-                   "latent_features": 3,
-                   "lr": 1e-3,
-               },
-               devices=1,
-           )
-       ),
-       {
-           "predictor_id": 4,
-           "predictor_name": "VAE_3",
-           "architecture": "VAE",
-           "hidden_features_in": 128,
-           "hidden_features_out": 128,
-           "latent_features": 3,
-       },
-   ),
-   exp_runner.Variable(
-       make_shared_gene_predictor(
-           partial(
-               n2l.pd.VaePredictor,
-               vae_cls=n2l.pd.models.LDVAE,
-               vae_kwargs={
-                   "hidden_features_in": 128,
-                   "latent_features": 3,
-                   "lr": 1e-3,
-               },
-               devices=1,
-           )
-       ),
-       {
-           "predictor_id": 4,
-           "predictor_name": "LDVAE_3",
-           "architecture": "LDVAE",
-           "hidden_features_in": 128,
-           "latent_features": 3,
-       },
-   ),
-   exp_runner.Variable(
-       make_shared_gene_predictor(
-           partial(
-               n2l.pd.VaePredictor,
-               vae_cls=n2l.pd.models.LEVAE,
-               vae_kwargs={
-                   "hidden_features_out": 128,
-                   "latent_features": 3,
-                   "lr": 1e-3,
-               },
-               devices=1,
-           )
-       ),
-       {
-           "predictor_id": 4,
-           "predictor_name": "LEVAE_3",
-           "architecture": "LEVAE",
-           "hidden_features_out": 128,
-           "latent_features": 3,
-       },
-   ),
-   exp_runner.Variable(
-       make_shared_gene_predictor(
-           partial(
-               n2l.pd.VaePredictor,
-               vae_cls=n2l.pd.models.LVAE,
-               vae_kwargs={
-                   "latent_features": 3,
-                   "lr": 1e-3,
-               },
-               devices=1,
-           )
-       ),
-       {
-           "predictor_id": 4,
-           "predictor_name": "LVAE_3",
-           "architecture": "LVAE",
-           "latent_features": 3,
-       },
-   ),
-]
+
+PREDICTOR_MAPPING: Dict[
+    str, exp_runner.Variable[Callable[[AnnData, AnnData], AnnData]]
+] = {
+    "nmf_3": exp_runner.Variable(
+        make_shared_gene_predictor(n2l.pd.NmfPredictor, {"n_components": 3}),
+        {
+            "predictor_id": 0,
+            "predictor_name": "nmf_3",
+            "architecture": "NMF",
+            "n_components": 3,
+        },
+    ),
+    "nmf_8": exp_runner.Variable(
+        make_shared_gene_predictor(n2l.pd.NmfPredictor, {"n_components": 8}),
+        {
+            "predictor_id": 1,
+            "predictor_name": "nmf_8",
+            "architecture": "NMF",
+            "n_components": 8,
+        },
+    ),
+    "nmf_auto": exp_runner.Variable(
+        make_shared_gene_predictor(n2l.pd.NmfPredictor, {"n_components": "auto"}),
+        {
+            "predictor_id": 2,
+            "predictor_name": "nmf_auto",
+            "architecture": "NMF",
+            "n_components": "auto",
+        },
+    ),
+    "tangram": exp_runner.Variable(
+        make_shared_gene_predictor(n2l.pd.TangramPredictor),
+        {"predictor_id": 3, "predictor_name": "tangram", "architecture": "Tangram"},
+    ),
+    "VAE_3": exp_runner.Variable(
+        make_shared_gene_predictor(
+            n2l.pd.VaePredictor,
+            {
+                "vae_cls": n2l.pd.models.VAE,
+                "hidden_features_in": 128,
+                "hidden_features_out": 128,
+                "latent_features": 3,
+                "lr": 1e-3,
+                "devices": 1,
+            },
+        ),
+        {
+            "predictor_id": 4,
+            "predictor_name": "VAE_3",
+            "architecture": "VAE",
+            "hidden_features_in": 128,
+            "hidden_features_out": 128,
+            "latent_features": 3,
+        },
+    ),
+    "LDVAE_3": exp_runner.Variable(
+        make_shared_gene_predictor(
+            n2l.pd.VaePredictor,
+            {
+                "vae_cls": n2l.pd.models.LDVAE,
+                "hidden_features_in": 128,
+                "latent_features": 3,
+                "lr": 1e-3,
+                "devices": 1,
+            },
+        ),
+        {
+            "predictor_id": 5,
+            "predictor_name": "LDVAE_3",
+            "architecture": "LDVAE",
+            "hidden_features_in": 128,
+            "latent_features": 3,
+        },
+    ),
+    "LEVAE_3": exp_runner.Variable(
+        make_shared_gene_predictor(
+            n2l.pd.VaePredictor,
+            {
+                "vae_cls": n2l.pd.models.LEVAE,
+                "hidden_features_out": 128,
+                "latent_features": 3,
+                "lr": 1e-3,
+                "devices": 1,
+            },
+        ),
+        {
+            "predictor_id": 6,
+            "predictor_name": "LEVAE_3",
+            "architecture": "LEVAE",
+            "hidden_features_out": 128,
+            "latent_features": 3,
+        },
+    ),
+    "LVAE_3": exp_runner.Variable(
+        make_shared_gene_predictor(
+            n2l.pd.VaePredictor,
+            {
+                "vae_cls": n2l.pd.models.LVAE,
+                "latent_features": 3,
+                "lr": 1e-3,
+                "devices": 1,
+            },
+        ),
+        {
+            "predictor_id": 7,
+            "predictor_name": "LVAE_3",
+            "architecture": "LVAE",
+            "latent_features": 3,
+        },
+    ),
+}
