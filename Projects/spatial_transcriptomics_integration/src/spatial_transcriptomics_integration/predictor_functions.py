@@ -5,6 +5,8 @@ import exp_runner
 import nico2_lib as n2l
 import numpy as np
 from anndata.typing import AnnData
+from sklearn.decomposition import PCA
+from sklearn.neighbors import NearestNeighbors
 
 
 def make_shared_gene_predictor(
@@ -41,6 +43,37 @@ def make_shared_gene_predictor(
         )
 
     return predictor
+
+
+def baseline(query: AnnData, reference: AnnData) -> AnnData:
+    shared_genes = np.intersect1d(query.var_names, reference.var_names)
+    ref_only_genes = np.setdiff1d(reference.var_names, shared_genes)
+    X_ref = reference[:, shared_genes].X
+    X_query = query[:, shared_genes].X
+    if hasattr(X_ref, "toarray"):
+        X_ref = X_ref.toarray()
+    if hasattr(X_query, "toarray"):
+        X_query = X_query.toarray()
+
+    n_components = min(50, X_ref.shape[0], X_ref.shape[1])
+    pca = PCA(n_components=n_components, random_state=0)
+    X_ref_pca = pca.fit_transform(X_ref)
+    X_query_pca = pca.transform(X_query)
+
+    n_neighbors = max(1, min(6, X_ref_pca.shape[0]))
+    knn = NearestNeighbors(n_neighbors=n_neighbors, metric="euclidean")
+    knn.fit(X_ref_pca)
+    _, neighbor_idx = knn.kneighbors(X_query_pca, return_distance=True)
+
+    rng = np.random.default_rng()
+    chosen_idx = np.array([rng.choice(row) for row in neighbor_idx])
+
+    X_sampled = reference[chosen_idx, ref_only_genes].X
+    return ad.AnnData(
+        X=X_sampled,
+        obs=query.obs.copy(),
+        var=reference[:, ref_only_genes].var.copy(),
+    )
 
 
 PREDICTOR_MAPPING: Dict[
@@ -147,6 +180,14 @@ PREDICTOR_MAPPING: Dict[
             "predictor_name": "LVAE_3",
             "architecture": "LVAE",
             "latent_features": 3,
+        },
+    ),
+    "baseline": exp_runner.Variable(
+        baseline,
+        {
+            "predictor_id": 8,
+            "predictor_name": "baseline",
+            "architecture": "knn sampling",
         },
     ),
 }
