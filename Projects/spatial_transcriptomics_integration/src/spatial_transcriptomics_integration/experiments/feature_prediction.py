@@ -27,6 +27,8 @@ class _Input(exp_runner.VarProduct):
 def _gene_pred_benchmark(input: _Input) -> List[exp_runner.MetaData]:
     rng = np.random.default_rng(input.seed)
     query, reference = input.datasets
+    adata_dense_mut(query)
+    adata_dense_mut(reference)
     shared_genes = np.intersect1d(query.var_names, reference.var_names).tolist()
     if input.predicted_genes_count > len(shared_genes):
         raise ValueError(
@@ -47,13 +49,13 @@ def _gene_pred_benchmark(input: _Input) -> List[exp_runner.MetaData]:
     artifact_folder.mkdir(parents=True, exist_ok=True)
     query_path = artifact_folder / f"{uuid4().hex}.h5ad"
     query_recon_path = artifact_folder / f"{uuid4().hex}.h5ad"
-    query.write_h5ad(query_path)
-    query_recon.write_h5ad(query_recon_path)
+    query[:, predicted_genes].write_h5ad(query_path)
+    query_recon[:, predicted_genes].write_h5ad(query_recon_path)
 
     res = []
     for barcode in barcodes:
-        cell = query[barcode, predicted_genes].X
-        cell_recon = query_recon[barcode, predicted_genes].X
+        cell = query[barcode, predicted_genes].X.flatten()
+        cell_recon = query_recon[barcode, predicted_genes].X.flatten()
         res.append(
             {
                 "barcode": str(barcode),
@@ -165,7 +167,7 @@ def gene_pred_benchmark(
     dir: str = "./data",
     predictor_keys: Optional[Sequence[str]] = None,
     seeds: Optional[Sequence[int]] = None,
-    predicted_genes_count: int = 10,
+    predicted_genes_count: int = 20,
     include_full: bool = True,
     include_celltype_subsets: bool = True,
     artifact_dir: Optional[str] = None,

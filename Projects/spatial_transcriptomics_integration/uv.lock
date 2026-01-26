@@ -554,7 +554,7 @@ wheels = [
 [[package]]
 name = "exp-runner"
 version = "0.1.0"
-source = { git = "https://github.com/egerc/exp-runner.git?rev=d373db50d3f605908a27562dd9e094085205fd38#d373db50d3f605908a27562dd9e094085205fd38" }
+source = { git = "https://github.com/egerc/exp-runner.git?rev=c3219c6e94629b31205896902b838a1bf1a44d41#c3219c6e94629b31205896902b838a1bf1a44d41" }
 dependencies = [
     { name = "numpy" },
     { name = "polars" },
@@ -1445,7 +1445,7 @@ wheels = [
 [[package]]
 name = "nico2-lib"
 version = "0.1.0"
-source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=9881875c910398724159b9642a78cde0654b2df4#9881875c910398724159b9642a78cde0654b2df4" }
+source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=fb1d46c3009679beae8760f7d5bd9cfc9265c082#fb1d46c3009679beae8760f7d5bd9cfc9265c082" }
 dependencies = [
     { name = "anndata" },
     { name = "kneed" },
@@ -2950,7 +2950,9 @@ dependencies = [
     { name = "ipykernel" },
     { name = "ipython" },
     { name = "nico2-lib" },
+    { name = "scikit-learn" },
     { name = "scikit-misc" },
+    { name = "scipy" },
     { name = "tangram-sc" },
 ]
 
@@ -2962,11 +2964,13 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anndata", specifier = ">=0.12.7" },
-    { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=d373db50d3f605908a27562dd9e094085205fd38" },
+    { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=c3219c6e94629b31205896902b838a1bf1a44d41" },
     { name = "ipykernel", specifier = ">=7.1.0" },
     { name = "ipython", specifier = ">=9.8.0" },
-    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=9881875c910398724159b9642a78cde0654b2df4" },
+    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=fb1d46c3009679beae8760f7d5bd9cfc9265c082" },
+    { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "scikit-misc", specifier = ">=0.5.2" },
+    { name = "scipy", specifier = ">=1.17.0" },
     { name = "tangram-sc", specifier = ">=1.0.4" },
 ]
 

@@ -8,15 +8,20 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "exp-runner @ git+https://github.com/egerc/exp-runner.git@d373db50d3f605908a27562dd9e094085205fd38",
-    "nico2-lib @ git+https://github.com/gruenlab/bioinfo-tools.git@9881875c910398724159b9642a78cde0654b2df4#subdirectory=applications/nico2_lib",
+    "exp-runner @ git+https://github.com/egerc/exp-runner.git@c3219c6e94629b31205896902b838a1bf1a44d41",
+    "nico2-lib @ git+https://github.com/gruenlab/bioinfo-tools.git@fb1d46c3009679beae8760f7d5bd9cfc9265c082#subdirectory=applications/nico2_lib",
     "ipykernel>=7.1.0",
     "ipykernel>=7.1.0",
     "ipython>=9.8.0",
     "scikit-misc>=0.5.2",
     "tangram-sc>=1.0.4",
     "anndata>=0.12.7",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.17.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [build-system]
 requires = ["uv_build>=0.8.13,<0.9.0"]

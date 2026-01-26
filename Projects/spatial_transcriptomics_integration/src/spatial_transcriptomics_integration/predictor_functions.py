@@ -1,4 +1,3 @@
-from functools import partial
 from typing import Any, Callable, Dict, Type
 
 import anndata as ad
@@ -6,7 +5,6 @@ import exp_runner
 import nico2_lib as n2l
 import numpy as np
 from anndata.typing import AnnData
-from nico2_lib.predictors._nn_models import _models as models
 
 
 def make_shared_gene_predictor(
@@ -54,7 +52,7 @@ PREDICTOR_MAPPING: Dict[
             "predictor_id": 0,
             "predictor_name": "nmf_3",
             "architecture": "NMF",
-            "n_components": 3,
+            "n_components": "3",
         },
     ),
     "nmf_8": exp_runner.Variable(
@@ -63,7 +61,7 @@ PREDICTOR_MAPPING: Dict[
             "predictor_id": 1,
             "predictor_name": "nmf_8",
             "architecture": "NMF",
-            "n_components": 8,
+            "n_components": "8",
         },
     ),
     "nmf_auto": exp_runner.Variable(
@@ -81,9 +79,8 @@ PREDICTOR_MAPPING: Dict[
     ),
     "VAE_3": exp_runner.Variable(
         make_shared_gene_predictor(
-            n2l.pd.VaePredictor,
+            n2l.pd.VAEPredictor,
             {
-                "vae_cls": n2l.pd.models.VAE,
                 "hidden_features_in": 128,
                 "hidden_features_out": 128,
                 "latent_features": 3,
@@ -102,9 +99,8 @@ PREDICTOR_MAPPING: Dict[
     ),
     "LDVAE_3": exp_runner.Variable(
         make_shared_gene_predictor(
-            n2l.pd.VaePredictor,
+            n2l.pd.LDVAEPredictor,
             {
-                "vae_cls": n2l.pd.models.LDVAE,
                 "hidden_features_in": 128,
                 "latent_features": 3,
                 "lr": 1e-3,
@@ -121,9 +117,8 @@ PREDICTOR_MAPPING: Dict[
     ),
     "LEVAE_3": exp_runner.Variable(
         make_shared_gene_predictor(
-            n2l.pd.VaePredictor,
+            n2l.pd.LEVAEPredictor,
             {
-                "vae_cls": n2l.pd.models.LEVAE,
                 "hidden_features_out": 128,
                 "latent_features": 3,
                 "lr": 1e-3,
@@ -140,9 +135,8 @@ PREDICTOR_MAPPING: Dict[
     ),
     "LVAE_3": exp_runner.Variable(
         make_shared_gene_predictor(
-            n2l.pd.VaePredictor,
+            n2l.pd.LVAEPredictor,
             {
-                "vae_cls": n2l.pd.models.LVAE,
                 "latent_features": 3,
                 "lr": 1e-3,
                 "devices": 1,
