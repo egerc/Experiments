@@ -1,4 +1,5 @@
 from functools import wraps
+from pathlib import Path
 from typing import Callable, Dict, Tuple
 
 import exp_runner
@@ -6,8 +7,26 @@ import nico2_lib as n2l
 import numpy as np
 import scanpy as sc
 from anndata.typing import AnnData
+from joblib import Memory
 
 from spatial_transcriptomics_integration.utils import adata_dense_mut
+
+
+def _scvi_transfer(
+    query: AnnData,
+    reference: AnnData,
+    reference_ct_key: str,
+    *,
+    cached: bool = True,
+) -> np.ndarray:
+    if not cached:
+        return n2l.lt.scvi_transfer(query, reference, reference_ct_key)
+    cache_dir = Path.cwd() / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cached_transfer = Memory(location=str(cache_dir), verbose=0).cache(
+        n2l.lt.scvi_transfer
+    )
+    return cached_transfer(query, reference, reference_ct_key)
 
 
 def _create_spatial_loader(
@@ -15,7 +34,7 @@ def _create_spatial_loader(
     query_ct_key: str,
     reference_loader: Callable[[str], AnnData],
     reference_ct_key: str,
-) -> Callable[[str], Tuple[AnnData, AnnData, str, str]]:
+) -> Callable[..., Tuple[AnnData, AnnData, str, str]]:
     """Create a spatial query–reference dataset loader.
 
     The returned loader loads query and reference AnnData objects, densifies them,
@@ -30,18 +49,26 @@ def _create_spatial_loader(
 
     Returns:
         A loader function mapping a data directory to
-        (query, reference, query_ct_key, reference_ct_key).
+        (query, reference, query_ct_key, reference_ct_key). The loader accepts a
+        cached_label_transfer flag to enable/disable on-disk caching.
     """
 
-    def loader(dir: str) -> Tuple[AnnData, AnnData, str, str]:
+    def loader(
+        dir: str,
+        *,
+        cached_label_transfer: bool = True,
+    ) -> Tuple[AnnData, AnnData, str, str]:
         query = query_loader(dir)
         reference = reference_loader(dir)
 
         adata_dense_mut(query)
         adata_dense_mut(reference)
 
-        query.obs[query_ct_key] = n2l.lt.scvi_transfer(
-            query, reference, reference_ct_key
+        query.obs[query_ct_key] = _scvi_transfer(
+            query,
+            reference,
+            reference_ct_key,
+            cached=cached_label_transfer,
         )
 
         return query, reference, query_ct_key, reference_ct_key
@@ -51,7 +78,7 @@ def _create_spatial_loader(
 
 def _create_pseudospatial_loader(
     loader_func: Callable[[str], AnnData], ct_key: str
-) -> Callable[[str], Tuple[AnnData, AnnData, str, str]]:
+) -> Callable[..., Tuple[AnnData, AnnData, str, str]]:
     """Create a pseudospatial query–reference dataset loader.
 
     The returned loader randomly splits a single AnnData object into query and
@@ -67,7 +94,11 @@ def _create_pseudospatial_loader(
     """
 
     @wraps(loader_func)
-    def split_loader(dir: str) -> Tuple[AnnData, AnnData, str, str]:
+    def split_loader(
+        dir: str,
+        *,
+        cached_label_transfer: bool = True,
+    ) -> Tuple[AnnData, AnnData, str, str]:
         adata = loader_func(dir)
         n_cells = adata.n_obs
         shuffled_idx = np.random.permutation(n_cells)
@@ -88,7 +119,7 @@ def _create_pseudospatial_loader(
 
 
 DATASET_MAPPING: Dict[
-    str, exp_runner.Variable[Callable[[str], Tuple[AnnData, AnnData, str, str]]]
+    str, exp_runner.Variable[Callable[..., Tuple[AnnData, AnnData, str, str]]]
 ] = {
     "mouse_small_intestine_spatial": exp_runner.Variable(
         _create_spatial_loader(

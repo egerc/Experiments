@@ -80,6 +80,7 @@ def _dataset_generator(
     n_obs_ceiling: Optional[int] = None,
     include_full: bool = True,
     include_celltype_subsets: bool = True,
+    cached_label_transfer: bool = True,
 ) -> Generator[exp_runner.Variable[Tuple[AnnData, AnnData]], None, None]:
     """
     Generates full datasets and then cell-type specific subsets for given dataset keys.
@@ -93,6 +94,7 @@ def _dataset_generator(
         dataset_keys: A list of strings, where each string is a key identifying a
             dataset in the global `DATASET_MAPPING`.
         dir: The directory path where data files are located.
+        cached_label_transfer: Use on-disk joblib caching for SCVI label transfer.
 
     Yields:
         A tuple `(query_adata, reference_adata, query_ct_key, reference_ct_key)`.
@@ -111,7 +113,8 @@ def _dataset_generator(
 
         loader_variable = DATASET_MAPPING[dataset_key]
         query, reference, query_ct_key, reference_ct_key = loader_variable.value(
-            dir=dir
+            dir=dir,
+            cached_label_transfer=cached_label_transfer,
         )
         if n_obs_ceiling is not None:
             n_obs_query = min(query.n_obs, n_obs_ceiling)
@@ -170,6 +173,7 @@ def gene_pred_benchmark(
     predicted_genes_count: int = 20,
     include_full: bool = True,
     include_celltype_subsets: bool = True,
+    cached_label_transfer: bool = True,
     artifact_dir: Optional[str] = None,
 ):
     """
@@ -192,6 +196,7 @@ def gene_pred_benchmark(
         predicted_genes_count: Number of shared genes to withhold for evaluation.
         include_full: Include full (all-cell) dataset pairs.
         include_celltype_subsets: Include per-cell-type subsets for common cell types.
+        cached_label_transfer: Use on-disk joblib caching for SCVI label transfer.
         artifact_dir: Directory for writing h5ad artifacts. Defaults to `./artifacts`
             under the current working directory.
     """
@@ -215,6 +220,7 @@ def gene_pred_benchmark(
                 n_obs_ceiling=n_obs_ceiling,
                 include_full=include_full,
                 include_celltype_subsets=include_celltype_subsets,
+                cached_label_transfer=cached_label_transfer,
             ),
             _predictor_generator(predictor_keys),
             seed_generator,
