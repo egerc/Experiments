@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Generator, List, Optional, Sequence, Tuple
+from typing import Callable, Generator, Iterable, List, Optional, Sequence, Tuple
 from uuid import uuid4
 
 import exp_runner
@@ -18,8 +18,8 @@ from spatial_transcriptomics_integration.utils import adata_dense_mut
 class _Input(exp_runner.VarProduct):
     datasets: Tuple[AnnData, AnnData]
     predictor: Callable[[AnnData, AnnData], AnnData]
-    seed: Optional[int] = None
-    predicted_genes_count: int = 10
+    seed: int
+    predicted_genes_count: int
     artifact_dir: Optional[str] = None
 
 
@@ -185,8 +185,8 @@ def gene_pred_benchmark(
     for the query and reconstruction.
 
     Args:
-        dataset_keys: Dataset keys to pull from `DATASET_MAPPING`. Defaults to a
-            standard set of mouse/human spatial and pseudospatial datasets.
+        dataset_keys: Dataset keys to pull from `DATASET_MAPPING`. Defaults to all
+            keys in `DATASET_MAPPING`.
         n_obs_ceiling: Optional upper bound for subsampling cells per dataset.
         n_samples: Number of seeds to generate when `seeds` is not provided.
         dir: Directory containing input data files.
@@ -200,12 +200,23 @@ def gene_pred_benchmark(
         artifact_dir: Directory for writing h5ad artifacts. Defaults to `./artifacts`
             under the current working directory.
     """
-    dataset_keys = dataset_keys or [
-        "mouse_small_intestine_spatial",
-        "mouse_small_intestine_pseudospatial",
-        "human_liver_spatial",
-        "human_liver_pseudospatial",
-    ]
+
+    def _resolve_keys(
+        keys: Optional[Sequence[str]],
+        available_keys: Iterable[str],
+        label: str,
+    ) -> List[str]:
+        available_set = set(available_keys)
+        resolved = list(available_set) if keys is None else list(keys)
+        for key in resolved:
+            if key not in available_set:
+                raise ValueError(f"{label} key '{key}' not found in mapping.")
+        return resolved
+
+    dataset_keys = _resolve_keys(dataset_keys, DATASET_MAPPING.keys(), "Dataset")
+    predictor_keys = _resolve_keys(
+        predictor_keys, PREDICTOR_MAPPING.keys(), "Predictor"
+    )
 
     seed_values = list(seeds) if seeds is not None else list(range(0, n_samples))
     seed_generator = (
@@ -224,7 +235,12 @@ def gene_pred_benchmark(
             ),
             _predictor_generator(predictor_keys),
             seed_generator,
-            (exp_runner.Variable(predicted_genes_count, {}),),
+            (
+                exp_runner.Variable(
+                    predicted_genes_count,
+                    {"predicted_genes_count": predicted_genes_count},
+                ),
+            ),
             (exp_runner.Variable(artifact_dir, {}),),
         )
     )
