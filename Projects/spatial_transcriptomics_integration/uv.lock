@@ -1445,7 +1445,7 @@ wheels = [
 [[package]]
 name = "nico2-lib"
 version = "0.1.0"
-source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=fb1d46c3009679beae8760f7d5bd9cfc9265c082#fb1d46c3009679beae8760f7d5bd9cfc9265c082" }
+source = { git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=f516b92d7370692bf434591b32e2338cf8b6e301#f516b92d7370692bf434591b32e2338cf8b6e301" }
 dependencies = [
     { name = "anndata" },
     { name = "kneed" },
@@ -2967,7 +2967,7 @@ requires-dist = [
     { name = "exp-runner", git = "https://github.com/egerc/exp-runner.git?rev=c3219c6e94629b31205896902b838a1bf1a44d41" },
     { name = "ipykernel", specifier = ">=7.1.0" },
     { name = "ipython", specifier = ">=9.8.0" },
-    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=fb1d46c3009679beae8760f7d5bd9cfc9265c082" },
+    { name = "nico2-lib", git = "https://github.com/gruenlab/bioinfo-tools.git?subdirectory=applications%2Fnico2_lib&rev=f516b92d7370692bf434591b32e2338cf8b6e301" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "scikit-misc", specifier = ">=0.5.2" },
     { name = "scipy", specifier = ">=1.17.0" },
